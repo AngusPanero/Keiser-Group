@@ -15,6 +15,10 @@ import {
 } from "framer-motion";
 import { UseTheme } from "../contexts/ThemeContext";
 import "./home.css";
+import service1 from "/fotos/service1.jpg"
+import service2 from "/fotos/service2.jpg"
+import service3 from "/fotos/service3.jpg"
+import service4 from "/fotos/service4.jpg"
 
 /* ============================================================
    CONFIG — reemplazá videos y fotos por los definitivos
@@ -35,7 +39,7 @@ const IMG = {
   sede1:
     "https://images.unsplash.com/photo-1517089596392-fb9a9033e05b?auto=format&fit=crop&w=1400&q=80",
   sede2:
-    "https://images.unsplash.com/photo-1590644365607-1c5a4c0b5f72?auto=format&fit=crop&w=1400&q=80",
+    "https://images.unsplash.com/photo-1660367439240-d38cb03a4365?auto=format&fit=crop&w=1400&q=80",
 };
 
 const CONTACT = {
@@ -149,23 +153,33 @@ const SERVICES = [
     title: "Mantenimiento de flota",
     text: "Un grupo técnico altamente calificado que optimiza el tiempo de diagnóstico y solución, para no prolongar el paro de máquinas.",
     tag: "Flota Keiser",
-    img: IMG.service1,
+    img: service1,
   },
   {
     n: "02",
     title: "Repuestos propios",
     text: "Stock permanente de repuestos originales: el 100% de los componentes con disponibilidad inmediata.",
     tag: "Stock permanente",
-    img: IMG.service2,
+    img: service2,
   },
   {
     n: "03",
     title: "Máquinas externas",
     text: "Mantenimiento y reparación de la línea HAULOTTE, en la que nos especializamos, y de JLG, GENIE, MANITOU, SNORKEL, SKYJACK, UPRIGHT, TEREX, SKYTRAK y GROVE, entre otras.",
     tag: "Multimarca",
-    img: IMG.service3,
+    img: service3,
+  },
+  {
+    n: "04",
+    title: "Asesoramiento técnico",
+    text: "Te ayudamos a elegir el equipo justo para cada trabajo según la altura, la carga y el terreno, para que la obra avance segura y sin sobrecostos.",
+    tag: "El equipo justo",
+    img: service4,
   },
 ];
+
+/* Cantidad de paneles del scroll horizontal: el ancho y el recorrido se calculan solos */
+const SERVICE_COUNT = SERVICES.length;
 
 const BRANDS = [
   "HAULOTTE",
@@ -388,7 +402,8 @@ const Home = () => {
     target: svRef,
     offset: ["start start", "end end"],
   });
-  const svX = useTransform(svP, [0, 1], ["0%", "-66.6667%"]);
+  // Recorre hasta mostrar el último panel: con 4 paneles mueve el 75% del track
+  const svX = useTransform(svP, [0, 1], ["0%", `-${((SERVICE_COUNT - 1) / SERVICE_COUNT) * 100}%`]);
   const svBar = useTransform(svP, [0, 1], [0, 1]);
 
   /* ---------- Sedes: línea que se dibuja ---------- */
@@ -700,7 +715,11 @@ const Home = () => {
       </section>
 
       {/* ================= SERVICIO (scroll horizontal) ================= */}
-      <section className="kh-service" ref={svRef}>
+      <section
+        className="kh-service"
+        ref={svRef}
+        style={{ "--kh-service-count": SERVICE_COUNT } as React.CSSProperties}
+      >
         <div className="kh-service-sticky">
           <div className="kh-container kh-service-head">
             <Level m={20} label="SERVICIO Y SOPORTE TÉCNICO" />
