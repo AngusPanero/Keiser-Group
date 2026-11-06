@@ -9,11 +9,10 @@ import Error from "../processMessages/Error";
 import PrivateRoute from "./PrivateRoute";
 import Error404 from "../processMessages/Error404";
 import ProcessOk from "../processMessages/ProcessOk";
-import Checkout from "../checkout/Checkout";
-import Reservations from "../reservas/Reservations";
-import Gallery from "../galeria/Gallery";
-import Experiences from "../experiencias/Experiences";
+import Transport from "../transport/Transport";
+import Service from "../service/Service";
 import Cookies from "../cookies/Cookies";
+import Catalog from "../catalogo/Catalog";
 import Loader from "../loader/Loader";
 import AdminDashboard from "../admin/AdminDashboard";
 import PoliticaPrivacidad from "../PoliticasGenerales/PoliticasPrivacidad";
@@ -27,11 +26,10 @@ const AppRouter = () => {
                 <NavBarCorporate />
                 <Routes>
                     <Route path="/" element={<Home />} />
-                    <Route path="/experiences" element={<Experiences />} />
-                    <Route path="/gallery" element={<Gallery />} />
+                    <Route path="/catalog" element={<Catalog />} />
+                    <Route path="/service" element={<Service />} />
+                    <Route path="/transport" element={<Transport />} />
                     <Route path="/contact" element={<ContactCorporate />} />
-                    <Route path="/reservations" element={<Reservations />} />
-                    <Route path="/checkout" element={<Checkout />} />
                     <Route path="/policy-cookies" element={<PoliticaCookiesCorporate />} />
                     <Route path="/policy-privacy" element={<PoliticaPrivacidad />} />
                     <Route path="/policy-terms" element={<CondicionesReserva />} />

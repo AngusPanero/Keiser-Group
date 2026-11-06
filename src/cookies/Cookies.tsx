@@ -12,7 +12,7 @@ const Cookies = () => {
     const { theme } = UseTheme()
 
     useEffect(() => {
-        localStorage.clear();
+        /* localStorage.clear(); */
         let accepted: string | null = null;
         try {
             accepted = localStorage.getItem(STORAGE_KEY);

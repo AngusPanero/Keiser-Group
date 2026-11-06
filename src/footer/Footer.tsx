@@ -20,6 +20,8 @@ const CONTACT = {
     tel2Label: "+54 11 4301 2976",
     mapsHurlingham:
         "https://www.google.com/maps/search/?api=1&query=Parque+Industrial+Hurlingham+Camino+del+Buen+Ayre+Km+17",
+    whatsappNeuquen: "https://api.whatsapp.com/send?phone=5492996114040",
+    whatsappNeuquenLabel: "+54 9 299 611 4040",
     mapsNeuquen:
         "https://www.google.com/maps/place/KEISER+Sucursal+Neuqu%C3%A9n/@-38.7424646,-68.1967459,17z",
 };
@@ -153,8 +155,15 @@ const Footer = () => {
                     <h4 className="footer-corporate-title">Sucursal Neuquén</h4>
                     <ul className="footer-corporate-list">
                         <li className="footer-corporate-location">
-                            Base operativa Patagonia<br />
+                            Ruta Provincial Nº 51 Km 3,5, Vista Alegre<br />
+                            Río Neuquén Distrito Industrial<br />
                             Neuquén, Argentina
+                        </li>
+                        <li className="footer-corporate-location">
+                            <strong>WHATSAPP</strong>{" "}
+                            <a href={CONTACT.whatsappNeuquen} target="_blank" rel="noopener noreferrer">
+                                {CONTACT.whatsappNeuquenLabel}
+                            </a>
                         </li>
                         <li>
                             <a

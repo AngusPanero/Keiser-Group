@@ -17,9 +17,9 @@ interface NavBarMobileProps {
 // TODO (Angus): ajustá las rutas a las páginas reales del proyecto.
 const LINKS = [
     { label: "Inicio", to: "/" },
-    { label: "Flota", to: "/fleet" },
+    { label: "Catálogo", to: "/catalog" },
     { label: "Servicio Técnico", to: "/service" },
-    { label: "Sedes", to: "/locations" },
+    { label: "Transporte", to: "/transport" },
     { label: "Contacto", to: "/contact" },
 ];
 

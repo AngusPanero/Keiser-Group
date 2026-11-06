@@ -1,597 +1,680 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
-import {
-  motion,
-  animate,
-  useInView,
-  AnimatePresence,
-  useScroll,
-  useTransform,
-} from 'framer-motion';
-import axios from 'axios';
-import './contactCorporate.css';
-import { UseTheme } from '../contexts/ThemeContext';
-import imgPiscina from '../assets/quinta4.jpg';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import axios from "axios";
+import { motion, AnimatePresence } from "framer-motion";
+import { UseTheme } from "../contexts/ThemeContext";
+import "./contactCorporate.css";
 
 /**
- * ContactCorporate — Quinta de Argos
+ * ContactCorporate — Keiser Group (ruta /contact)
  * ---------------------------------------------------------
- * Sección de contacto: hero con la piscina, tarjeta de info
- * en verde pino y formulario de consulta en tres pasos.
- * Envía a `${API_BASE}/contact` con el mismo shape de datos
- * que antes (nombre, email, telefono, checkin, checkout,
- * huespedes, mensaje).
+ * Parámetros opcionales en la URL (desde la card de un equipo):
+ *   /contact?equipo=<id-o-slug>&modelo=<texto visible>
+ *   ej: /contact?equipo=haulotte-compact-12&modelo=HAULOTTE%20Compact%2012
+ *
+ * - Con parámetros válidos: el mail sale como "Consulta por equipo".
+ * - Sin parámetros (o inválidos): consulta general normal.
+ *
+ * Seguridad (el front solo hace UX, el back vuelve a validar todo):
+ * - Los parámetros de la URL se validan y recortan: cualquiera puede armar un link.
+ * - Nada se inyecta como HTML (React escapa el texto).
+ * - Campo trampa (honeypot) y tiempo mínimo de llenado contra bots.
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || '';
+const API_URL = import.meta.env.VITE_API_URL;
 
-const EASE = [0.65, 0, 0.35, 1] as const;
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 28 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: EASE } },
+const CONTACT = {
+  whatsapp: "https://api.whatsapp.com/send?phone=5491126973540",
+  whatsappLabel: "+54 9 11 2697 3540",
+  tel1: "tel:+541143014323",
+  tel1Label: "+54 11 4301 4323",
+  tel2: "tel:+541143012976",
+  tel2Label: "+54 11 4301 2976",
+  whatsappNeuquen: "https://api.whatsapp.com/send?phone=5492996114040",
+  whatsappNeuquenLabel: "+54 9 299 611 4040",
 };
 
-const stagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.12 } },
+/* Límites: los mismos que valida el backend */
+const LIMITS = {
+  name: 80,
+  email: 254,
+  phone: 30,
+  company: 100,
+  message: 2000,
+  equipmentId: 64,
+  equipmentLabel: 120,
 };
 
-const GUEST_OPTIONS = ['1', '2', '3', '4', '5', '6'];
+const EMAIL_RE = /^[^\s@<>()[\]\\,;:"]+@[^\s@<>()[\]\\,;:"]+\.[^\s@<>()[\]\\,;:"]{2,}$/;
+const PHONE_RE = /^[0-9+()\-\s]{6,30}$/;
+const EQUIPMENT_ID_RE = /^[a-zA-Z0-9_-]{1,64}$/;
 
-// ---------- Utilidades ----------
-
-const pad = (n: number) => String(n).padStart(2, '0');
-
-const todayISO = () => {
-  const d = new Date();
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-};
-
-const nightsBetween = (from: string, to: string) =>
-  Math.round(
-    (Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86400000
-  );
-
-// ---------- Número animado ----------
-
-const AnimatedStat: React.FC<{
-  value: number;
-  decimals?: number;
-  className?: string;
-}> = ({ value, decimals = 0, className }) => {
-  const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true, amount: 0.6 });
-  const [display, setDisplay] = useState((0).toFixed(decimals));
-
-  useEffect(() => {
-    if (!isInView) return;
-    const controls = animate(0, value, {
-      duration: 1.6,
-      ease: EASE,
-      onUpdate: (latest) => setDisplay(latest.toFixed(decimals)),
-    });
-    return () => controls.stop();
-  }, [isInView, value, decimals]);
-
-  // 7000 → 7.000 · 9.9 → 9,9
-  const formatted = decimals
-    ? display.replace('.', ',')
-    : Number(display).toLocaleString('es-ES');
-
-  return (
-    <span ref={ref} className={className}>
-      {formatted}
-    </span>
-  );
-};
-
-// ---------- Iconos ----------
-
-const IconPin = () => (
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21Z" />
-    <circle cx="12" cy="9.5" r="2.5" />
-  </svg>
-);
-
-const IconMail = () => (
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <rect x="3" y="5" width="18" height="14" rx="1.5" />
-    <path d="m3.5 6 8.5 7 8.5-7" />
-  </svg>
-);
-
-const IconChat = () => (
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4A8 8 0 1 1 20 11.5Z" />
-    <path d="M9 10.5c.5 2 2 3.5 4 4" />
-  </svg>
-);
-
-const IconArrow = () => (
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M4 12h15M13 6l6 6-6 6" />
-  </svg>
-);
-
-// ---------- Tipos ----------
-
-interface ContactFormData {
-  nombre: string;
+type Fields = {
+  name: string;
   email: string;
-  telefono: string;
-  checkin: string;
-  checkout: string;
-  huespedes: string;
-  mensaje: string;
-}
-
-const initialFormData: ContactFormData = {
-  nombre: '',
-  email: '',
-  telefono: '',
-  checkin: '',
-  checkout: '',
-  huespedes: '',
-  mensaje: '',
+  phone: string;
+  company: string;
+  message: string;
 };
 
-type SubmitStatus = 'idle' | 'loading' | 'success' | 'error';
+type FieldErrors = Partial<Record<keyof Fields, string>>;
+type Status = "idle" | "sending" | "success" | "error";
 
-// ---------- Componente ----------
+const EMPTY: Fields = { name: "", email: "", phone: "", company: "", message: "" };
 
-const ContactCorporate: React.FC = () => {
-  const themeContext = UseTheme() as { theme?: 'light' | 'dark' } | undefined;
-  const theme = themeContext?.theme ?? 'light';
+/* Limpia texto que viene de la URL: sin caracteres de control ni < >, recortado */
+const cleanParam = (value: string | null, max: number) =>
+  (value ?? "")
+    .replace(/[\u0000-\u001F\u007F<>]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, max);
+
+const validate = (f: Fields): FieldErrors => {
+  const e: FieldErrors = {};
+  if (f.name.trim().length < 2) e.name = "Ingresá tu nombre y apellido.";
+  if (!EMAIL_RE.test(f.email.trim())) e.email = "Ingresá un email válido.";
+  if (!PHONE_RE.test(f.phone.trim())) e.phone = "Ingresá un teléfono válido (solo números, +, guiones o espacios).";
+  if (f.company.trim().length < 2) e.company = "Ingresá el nombre de tu empresa.";
+  if (f.message.trim().length < 10) e.message = "Contanos un poco más (mínimo 10 caracteres).";
+  return e;
+};
+
+/* Traduce cada falla posible de la petición a un mensaje claro */
+const errorMessage = (err: unknown): string => {
+  if (!axios.isAxiosError(err)) return "Ocurrió un error inesperado. Probá de nuevo.";
+
+  if (err.code === "ECONNABORTED") {
+    return "El servidor tardó demasiado en responder. Puede estar iniciándose: esperá unos segundos y volvé a intentar.";
+  }
+  if (!err.response) {
+    return "No pudimos conectarnos con el servidor. Revisá tu conexión a internet e intentá de nuevo.";
+  }
+
+  const status = err.response.status;
+  const data = err.response.data as { code?: string; message?: string; retryAfterMinutes?: number } | undefined;
+
+  if (status === 400) return data?.message || "Revisá los datos del formulario.";
+  if (status === 413) return "El mensaje es demasiado largo.";
+  if (status === 429) {
+    const min = data?.retryAfterMinutes;
+    return min
+      ? `Enviaste varias consultas seguidas. Probá de nuevo en ${min} minuto(s) o escribinos por WhatsApp.`
+      : "Enviaste varias consultas seguidas. Probá de nuevo en unos minutos o escribinos por WhatsApp.";
+  }
+  if (status === 502 || status === 503) {
+    return "No pudimos enviar tu consulta en este momento. Probá en unos minutos o escribinos por WhatsApp.";
+  }
+  if (status >= 500) return "Hubo un problema en el servidor. Probá de nuevo más tarde o escribinos por WhatsApp.";
+  return "No pudimos enviar tu consulta. Probá de nuevo.";
+};
+
+const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
+const MARQUEE = [
+  "Alquiler de plataformas",
+  "Repuestos originales",
+  "Servicio técnico",
+  "Especialistas Haulotte",
+  "Mantenimiento de flota",
+  "Hurlingham · Neuquén",
+];
+
+const SITES = [
+  {
+    tag: "Casa central",
+    city: "Hurlingham",
+    coord: "34°34′S — 58°39′W",
+    lines: ["Parque Industrial Hurlingham", "Camino del Buen Ayre Km 17", "Buenos Aires, Argentina"],
+    map: "https://www.google.com/maps/search/?api=1&query=Parque+Industrial+Hurlingham+Camino+del+Buen+Ayre+Km+17",
+  },
+  {
+    tag: "Sucursal",
+    city: "Neuquén",
+    coord: "38°44′S — 68°11′W",
+    lines: [
+      "Ruta Provincial Nº 51 Km 3,5, Vista Alegre",
+      "Río Neuquén Distrito Industrial",
+      "Neuquén, Argentina",
+      "WhatsApp +54 9 299 611 4040",
+    ],
+    map: "https://www.google.com/maps/place/KEISER+Sucursal+Neuqu%C3%A9n/@-38.7424646,-68.1967459,17z",
+  },
+];
+
+/* Hora actual en Argentina, para el detalle del hero */
+const useArgentinaTime = () => {
+  const format = () =>
+    new Intl.DateTimeFormat("es-AR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+      timeZone: "America/Argentina/Buenos_Aires",
+    }).format(new Date());
+  const [time, setTime] = useState(format);
+  useEffect(() => {
+    const id = setInterval(() => setTime(format()), 15000);
+    return () => clearInterval(id);
+  }, []);
+  return time;
+};
+
+const ContactCorporate = () => {
+  const { theme } = UseTheme();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [fields, setFields] = useState<Fields>(EMPTY);
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const [touched, setTouched] = useState<Partial<Record<keyof Fields, boolean>>>({});
+  const [status, setStatus] = useState<Status>("idle");
+  const [serverError, setServerError] = useState("");
+  const [honeypot, setHoneypot] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [termsError, setTermsError] = useState(false);
+  const startedAt = useRef<number>(Date.now());
+  const time = useArgentinaTime();
+
+  /* Progreso del formulario: campos válidos sobre el total */
+  const FIELD_KEYS: (keyof Fields)[] = ["name", "email", "phone", "company", "message"];
+  const currentErrors = validate(fields);
+  const completed = FIELD_KEYS.filter((k) => !currentErrors[k]).length;
+
+  /* ── Equipo desde la URL (validado) ── */
+  const equipment = useMemo(() => {
+    const id = cleanParam(searchParams.get("equipo"), LIMITS.equipmentId);
+    const label = cleanParam(searchParams.get("modelo"), LIMITS.equipmentLabel);
+    if (!id || !EQUIPMENT_ID_RE.test(id)) return null;
+    return { id, label: label || id };
+  }, [searchParams]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const [formData, setFormData] = useState<ContactFormData>(initialFormData);
-  const [status, setStatus] = useState<SubmitStatus>('idle');
-  const [sentName, setSentName] = useState('');
-
-  // Parallax suave de la foto del hero
-  const heroRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ['start start', 'end start'],
-  });
-  const heroImageY = useTransform(scrollYProgress, [0, 1], ['0%', '18%']);
-  const heroImageScale = useTransform(scrollYProgress, [0, 1], [1.05, 1.15]);
-
-  const minCheckin = todayISO();
-
-  const nights = useMemo(() => {
-    if (!formData.checkin || !formData.checkout) return null;
-    return nightsBetween(formData.checkin, formData.checkout);
-  }, [formData.checkin, formData.checkout]);
-
-  const invalidDates = nights !== null && nights <= 0;
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (status === 'error') setStatus('idle');
+  const removeEquipment = () => {
+    const next = new URLSearchParams(searchParams);
+    next.delete("equipo");
+    next.delete("modelo");
+    setSearchParams(next, { replace: true });
   };
 
-  const chooseGuests = (value: string) =>
-    setFormData((prev) => ({
-      ...prev,
-      huespedes: prev.huespedes === value ? '' : value,
-    }));
+  const onChange = (key: keyof Fields) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const value = e.target.value.slice(0, LIMITS[key]);
+    const next = { ...fields, [key]: value };
+    setFields(next);
+    if (touched[key]) setErrors(validate(next));
+    if (serverError) setServerError("");
+  };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const onBlur = (key: keyof Fields) => () => {
+    setTouched((t) => ({ ...t, [key]: true }));
+    setErrors(validate(fields));
+  };
+
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (invalidDates) return;
-    setStatus('loading');
+    if (status === "sending") return;
+
+    const v = validate(fields);
+    setErrors(v);
+    setTouched({ name: true, email: true, phone: true, company: true, message: true });
+    setTermsError(!acceptedTerms);
+    if (Object.keys(v).length || !acceptedTerms) return;
+
+    setStatus("sending");
+    setServerError("");
 
     try {
-      await axios.post(`${API_BASE}/contact`, formData, {
-        withCredentials: true,
-      });
-      setSentName(formData.nombre.trim().split(' ')[0] || '');
-      setStatus('success');
-      setFormData(initialFormData);
-    } catch (error) {
-      console.error('Error al enviar el formulario de contacto:', error);
-      setStatus('error');
+      await axios.post(
+        `${API_URL}/contact`,
+        {
+          name: fields.name.trim(),
+          email: fields.email.trim(),
+          phone: fields.phone.trim(),
+          company: fields.company.trim(),
+          message: fields.message.trim(),
+          equipment: equipment ? { id: equipment.id, label: equipment.label } : null,
+          acceptedTerms, // el back exige true: sin aceptación no se envía
+          website: honeypot, // honeypot: tiene que llegar vacío
+          elapsed: Date.now() - startedAt.current,
+        },
+        { timeout: 20000 }
+      );
+      setStatus("success");
+      setFields(EMPTY);
+      setTouched({});
+      setAcceptedTerms(false);
+    } catch (err) {
+      console.error("Error al enviar el formulario de contacto:", err);
+      setServerError(errorMessage(err));
+      setStatus("error");
     }
   };
 
-  return (
-    <div className={`cc ${theme === 'dark' ? 'cc--dark' : ''}`}>
-      {/* ============ HERO ============ */}
-      <section className="cc-hero" ref={heroRef}>
-        <motion.div
-          className="cc-hero-media"
-          style={{ y: heroImageY, scale: heroImageScale }}
-        >
-          <img src={imgPiscina} alt="Piscina infinity de Quinta de Argos al atardecer" />
-        </motion.div>
-        <div className="cc-hero-veil" aria-hidden="true" />
+  const resetForm = () => {
+    setStatus("idle");
+    startedAt.current = Date.now();
+  };
 
-        <motion.div
-          className="cc-hero-inner"
-          initial="hidden"
-          animate="visible"
-          variants={stagger}
-        >
-          <motion.span className="cc-hero-eyebrow" variants={fadeUp}>
-            <span className="cc-hero-eyebrow-line" aria-hidden="true" />
+  const fieldError = (key: keyof Fields) => (touched[key] ? errors[key] : undefined);
+
+  const renderField = (
+    key: keyof Fields,
+    n: string,
+    label: string,
+    type: string,
+    placeholder: string,
+    autoComplete: string
+  ) => {
+    const err = fieldError(key);
+    return (
+      <div className={`ct-field ${err ? "has-error" : ""}`}>
+        <div className="ct-field-head">
+          <label htmlFor={`ct-${key}`}>
+            {label} <span className="ct-req">*</span>
+          </label>
+          <span className="ct-field-n">{n}</span>
+        </div>
+        <div className="ct-input-box">
+          <input
+            id={`ct-${key}`}
+            type={type}
+            value={fields[key]}
+            onChange={onChange(key)}
+            onBlur={onBlur(key)}
+            placeholder={placeholder}
+            autoComplete={autoComplete}
+            maxLength={LIMITS[key]}
+            aria-invalid={!!err}
+            aria-describedby={err ? `ct-${key}-err` : undefined}
+            required
+          />
+          <span className="ct-focus" />
+        </div>
+        {err && (
+          <span className="ct-field-error" id={`ct-${key}-err`}>
+            {err}
+          </span>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <main className={`ct-root ${theme}`}>
+      {/* ── HERO ── */}
+      <header className="ct-hero">
+        <div className="ct-hero-word" aria-hidden="true">CONTACTO</div>
+
+        <div className="ct-hero-inner">
+          <motion.img
+            src={theme === "dark" ? "/logos/keiser-logo-blanco.png" : "/logos/keiser-logo-negro.png"}
+            alt="Keiser Group"
+            className="ct-hero-logo"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: EASE }}
+          />
+
+          <motion.div
+            className="ct-hero-meta"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.4 }}
+          >
+            <span className="ct-hero-meta-item">
+              <span className="ct-live-dot" />
+              Buenos Aires · {time} h
+            </span>
+            <span className="ct-hero-meta-item">Nivel 32 M · Cima</span>
+            <span className="ct-hero-meta-item">Hurlingham · Neuquén</span>
+          </motion.div>
+        </div>
+
+        <motion.span
+          className="ct-hero-line"
+          aria-hidden="true"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 1.4, ease: [0.76, 0, 0.24, 1], delay: 0.2 }}
+        />
+      </header>
+
+      {/* ── MARQUEE DE SERVICIOS ── */}
+      <div className="ct-marquee" aria-hidden="true">
+        <div className="ct-marquee-track">
+          {[...MARQUEE, ...MARQUEE].map((t, i) => (
+            <span className="ct-marquee-item" key={i}>
+              {t}
+              <span className="ct-marquee-dot" />
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="ct-container">
+
+        {/* ── COLUMNA INFO ── */}
+        <aside className="ct-info">
+          <motion.span
+            className="ct-eyebrow"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: EASE }}
+          >
+            <span className="ct-eyebrow-dot" />
             Contacto
           </motion.span>
 
-          <motion.h1 className="cc-hero-title" variants={fadeUp}>
-            Hablemos de <span className="cc-hero-title-accent">tu estancia</span>
-          </motion.h1>
+          <h1 className="ct-title">
+            <span className="ct-mask">
+              <motion.span
+                initial={{ y: "105%" }}
+                animate={{ y: "0%" }}
+                transition={{ duration: 1.1, ease: EASE, delay: 0.1 }}
+              >
+                Hablemos
+              </motion.span>
+            </span>
+            <span className="ct-mask ct-accent">
+              <motion.span
+                initial={{ y: "105%" }}
+                animate={{ y: "0%" }}
+                transition={{ duration: 1.1, ease: EASE, delay: 0.2 }}
+              >
+                de tu obra.
+              </motion.span>
+            </span>
+          </h1>
 
-          <motion.p className="cc-hero-text" variants={fadeUp}>
-            Cuéntanos qué buscas y te responderemos en menos de 24 horas con la
-            disponibilidad, las tarifas y todo lo que necesites saber antes de reservar.
+          <motion.p
+            className="ct-lead"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, ease: EASE, delay: 0.35 }}
+          >
+            Contactate con nosotros por teléfono o completando el formulario. Nuestro equipo
+            te responde a la brevedad.
           </motion.p>
 
-          <motion.div className="cc-hero-meta" variants={fadeUp}>
-            <span>38°05′ N · 1°48′ O</span>
-            <span className="cc-hero-meta-dot" aria-hidden="true" />
-            <span>Cehegín, Murcia</span>
+          <motion.div
+            className="ct-channels"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, ease: EASE, delay: 0.45 }}
+          >
+            <a href={CONTACT.whatsapp} target="_blank" rel="noopener noreferrer" className="ct-wa">
+              <span className="ct-wa-label">WhatsApp</span>
+              <span className="ct-wa-number">{CONTACT.whatsappLabel}</span>
+              <span className="ct-wa-arrow" aria-hidden="true">→</span>
+            </a>
+            <a href={CONTACT.tel1} className="ct-phone">
+              <span>TEL.</span> {CONTACT.tel1Label}
+            </a>
+            <a href={CONTACT.tel2} className="ct-phone">
+              <span>TEL.</span> {CONTACT.tel2Label}
+            </a>
+            <a href={CONTACT.whatsappNeuquen} target="_blank" rel="noopener noreferrer" className="ct-phone ct-phone-wide">
+              <span>NEUQUÉN</span> {CONTACT.whatsappNeuquenLabel}
+            </a>
           </motion.div>
-        </motion.div>
-      </section>
 
-      {/* ============ CUERPO ============ */}
-      <section className="cc-body">
-        {/* ---------- Tarjeta de info ---------- */}
-        <motion.aside
-          className="cc-info"
+        </aside>
+
+        {/* ── COLUMNA FORMULARIO ── */}
+        <motion.section
+          className="ct-panel"
           initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.25 }}
-          transition={{ duration: 0.9, ease: EASE }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, ease: EASE, delay: 0.25 }}
         >
-          <svg className="cc-info-arch" viewBox="0 0 200 260" aria-hidden="true">
-            <path d="M20 260V100a80 80 0 0 1 160 0v160" />
-            <path d="M44 260V104a56 56 0 0 1 112 0v156" />
-          </svg>
+          <span className="ct-panel-edge" aria-hidden="true" />
 
-          <span className="cc-info-eyebrow">Encuéntranos</span>
-          <h2 className="cc-info-title">Cehegín, Región de Murcia</h2>
-          <p className="cc-info-text">
-            Comarca del Noroeste de Murcia, a 7 km de Caravaca de la Cruz.
-            En pleno campo, pero a minutos del casco histórico.
-          </p>
-
-          <div className="cc-stats">
-            <div className="cc-stat">
-              <span className="cc-stat-value">
-                <AnimatedStat value={7000} />
-                <span className="cc-stat-unit">m²</span>
-              </span>
-              <span className="cc-stat-label">Jardín privado</span>
-            </div>
-            <div className="cc-stat">
-              <span className="cc-stat-value">
-                <span className="cc-stat-unit cc-stat-unit--before">hasta</span>
-                <AnimatedStat value={6} />
-              </span>
-              <span className="cc-stat-label">Huéspedes</span>
-            </div>
-            <div className="cc-stat">
-              <span className="cc-stat-value">
-                <AnimatedStat value={9.9} decimals={1} />
-                <span className="cc-stat-unit">/10</span>
-              </span>
-              <span className="cc-stat-label">Booking y Airbnb</span>
-            </div>
-          </div>
-
-          <ul className="cc-channels">
-            <li>
-              <a className="cc-channel" href="mailto:quintadeargos@gmail.com">
-                <span className="cc-channel-icon"><IconMail /></span>
-                <span className="cc-channel-body">
-                  <span className="cc-channel-label">Email</span>
-                  <span className="cc-channel-value">quintadeargos@gmail.com</span>
-                </span>
-                <span className="cc-channel-arrow"><IconArrow /></span>
-              </a>
-            </li>
-            <li>
-              <a
-                className="cc-channel"
-                href="https://wa.me/34633491825"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span className="cc-channel-icon"><IconChat /></span>
-                <span className="cc-channel-body">
-                  <span className="cc-channel-label">WhatsApp</span>
-                  <span className="cc-channel-value">+34 633 49 18 25</span>
-                </span>
-                <span className="cc-channel-arrow"><IconArrow /></span>
-              </a>
-            </li>
-            <li>
-              <div className="cc-channel cc-channel--static">
-                <span className="cc-channel-icon"><IconPin /></span>
-                <span className="cc-channel-body">
-                  <span className="cc-channel-label">Ubicación</span>
-                  <span className="cc-channel-value">7 km de Caravaca de la Cruz</span>
-                </span>
-              </div>
-            </li>
-          </ul>
-
-          <p className="cc-info-note">
-            <span className="cc-info-note-pulse" aria-hidden="true" />
-            Solemos responder en menos de 24 horas
-          </p>
-        </motion.aside>
-
-        {/* ---------- Formulario ---------- */}
-        <motion.div
-          className="cc-panel"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.15 }}
-          transition={{ duration: 0.9, delay: 0.1, ease: EASE }}
-        >
           <AnimatePresence mode="wait">
-            {status === 'success' ? (
+            {status === "success" ? (
               <motion.div
                 key="success"
-                className="cc-success"
-                initial={{ opacity: 0, y: 20 }}
+                className="ct-success"
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.6, ease: EASE }}
                 role="status"
               >
-                <svg className="cc-success-icon" viewBox="0 0 80 80" aria-hidden="true">
-                  <motion.circle
-                    cx="40" cy="40" r="36"
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ duration: 0.9, ease: EASE }}
-                  />
-                  <motion.path
-                    d="M25 41l10 10 20-22"
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ duration: 0.5, delay: 0.7, ease: EASE }}
-                  />
-                </svg>
-                <span className="cc-panel-eyebrow">Consulta enviada</span>
-                <h2 className="cc-success-title">
-                  {sentName ? `Gracias, ${sentName}` : 'Gracias'}
-                </h2>
-                <p className="cc-success-text">
-                  Hemos recibido tu consulta. Te escribiremos en menos de 24 horas
-                  con la disponibilidad y las tarifas para tus fechas.
+                <span className="ct-success-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="26" height="26" fill="none">
+                    <path d="M5 12.5 10 17l9-10" stroke="currentColor" strokeWidth="2.2" strokeLinecap="square" />
+                  </svg>
+                </span>
+                <h2 className="ct-success-title">Consulta enviada.</h2>
+                <p className="ct-success-text">
+                  Recibimos tu mensaje{equipment ? <> sobre <strong>{equipment.label}</strong></> : null}. Te
+                  vamos a responder al email que nos dejaste lo antes posible.
                 </p>
-                <button
-                  type="button"
-                  className="cc-success-again"
-                  onClick={() => setStatus('idle')}
-                >
-                  Enviar otra consulta
+                <button type="button" className="ct-link-btn" onClick={resetForm}>
+                  Enviar otra consulta →
                 </button>
               </motion.div>
             ) : (
               <motion.form
                 key="form"
-                className="cc-form"
-                onSubmit={handleSubmit}
+                className="ct-form"
+                onSubmit={onSubmit}
+                noValidate
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5 }}
-                noValidate={false}
+                transition={{ duration: 0.4 }}
               >
-                <header className="cc-form-head">
-                  <span className="cc-panel-eyebrow">Consulta de disponibilidad</span>
-                  <h2 className="cc-form-title">Cuéntanos tu plan</h2>
-                </header>
+                {/* Tipo de consulta */}
+                <AnimatePresence initial={false}>
+                  {equipment ? (
+                    <motion.div
+                      key="eq"
+                      className="ct-equipment"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.45, ease: EASE }}
+                    >
+                      <div className="ct-equipment-inner">
+                        <span className="ct-equipment-tag">Consulta por equipo</span>
+                        <span className="ct-equipment-name">{equipment.label}</span>
+                        <span className="ct-equipment-ref">REF · {equipment.id}</span>
+                      </div>
+                      <button
+                        type="button"
+                        className="ct-equipment-remove"
+                        onClick={removeEquipment}
+                        aria-label="Quitar equipo y hacer una consulta general"
+                      >
+                        <span />
+                        <span />
+                      </button>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="general"
+                      className="ct-general"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      <span className="ct-general-dot" />
+                      Consulta general
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-                {/* 01 — Tus datos */}
-                <fieldset className="cc-step">
-                  <legend className="cc-step-legend">
-                    <span className="cc-step-num">01</span>
-                    Tus datos
-                  </legend>
-
-                  <div className="cc-grid cc-grid--2">
-                    <div className="cc-field">
-                      <label htmlFor="nombre" className="cc-label">Nombre completo</label>
-                      <input
-                        id="nombre"
-                        name="nombre"
-                        type="text"
-                        autoComplete="name"
-                        className="cc-input"
-                        value={formData.nombre}
-                        onChange={handleChange}
-                        placeholder="Tu nombre"
-                        required
-                      />
-                    </div>
-                    <div className="cc-field">
-                      <label htmlFor="email" className="cc-label">Email</label>
-                      <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        autoComplete="email"
-                        className="cc-input"
-                        value={formData.email}
-                        onChange={handleChange}
-                        placeholder="tu@email.com"
-                        required
-                      />
-                    </div>
+                <div className="ct-progress" aria-hidden="true">
+                  <div className="ct-progress-bars">
+                    {FIELD_KEYS.map((k, i) => (
+                      <span key={k} className={i < completed ? "on" : ""} />
+                    ))}
                   </div>
+                  <span className="ct-progress-label">
+                    {completed === FIELD_KEYS.length ? "Listo para enviar" : `${completed}/${FIELD_KEYS.length} completos`}
+                  </span>
+                </div>
 
-                  <div className="cc-field">
-                    <label htmlFor="telefono" className="cc-label">Teléfono / WhatsApp</label>
-                    <input
-                      id="telefono"
-                      name="telefono"
-                      type="tel"
-                      autoComplete="tel"
-                      className="cc-input"
-                      value={formData.telefono}
-                      onChange={handleChange}
-                      placeholder="+34 000 00 00 00"
+                <div className="ct-grid">
+                  {renderField("name", "01", "Nombre y Apellido", "text", "Juan Pérez", "name")}
+                  {renderField("email", "02", "E-mail", "email", "nombre@empresa.com", "email")}
+                  {renderField("phone", "03", "Teléfono", "tel", "+54 9 11 0000 0000", "tel")}
+                  {renderField("company", "04", "Empresa", "text", "Nombre de la empresa", "organization")}
+                </div>
+
+                {/* Mensaje */}
+                <div className={`ct-field ct-field-full ${fieldError("message") ? "has-error" : ""}`}>
+                  <div className="ct-field-head">
+                    <label htmlFor="ct-message">
+                      Mensaje <span className="ct-req">*</span>
+                    </label>
+                    <span className="ct-field-n">05</span>
+                  </div>
+                  <div className="ct-input-box">
+                    <textarea
+                      id="ct-message"
+                      rows={5}
+                      value={fields.message}
+                      onChange={onChange("message")}
+                      onBlur={onBlur("message")}
+                      placeholder={
+                        equipment
+                          ? `Contanos qué necesitás del ${equipment.label}: fechas, obra, altura de trabajo…`
+                          : "Contanos qué necesitás: alquiler, repuestos, servicio técnico…"
+                      }
+                      maxLength={LIMITS.message}
+                      aria-invalid={!!fieldError("message")}
+                      aria-describedby={fieldError("message") ? "ct-message-err" : undefined}
                       required
                     />
+                    <span className="ct-focus" />
                   </div>
-                </fieldset>
-
-                {/* 02 — Tu estancia */}
-                <fieldset className="cc-step">
-                  <legend className="cc-step-legend">
-                    <span className="cc-step-num">02</span>
-                    Tu estancia
-                  </legend>
-
-                  <div className="cc-dates">
-                    <div className="cc-field">
-                      <label htmlFor="checkin" className="cc-label">Llegada</label>
-                      <input
-                        id="checkin"
-                        name="checkin"
-                        type="date"
-                        className="cc-input cc-input--date"
-                        value={formData.checkin}
-                        min={minCheckin}
-                        onChange={handleChange}
-                      />
-                    </div>
-
-                    <div
-                      className={`cc-nights ${nights !== null && !invalidDates ? 'cc-nights--on' : ''} ${invalidDates ? 'cc-nights--error' : ''}`}
-                      aria-live="polite"
-                    >
-                      <span className="cc-nights-value">
-                        {nights !== null && !invalidDates ? nights : '—'}
-                      </span>
-                      <span className="cc-nights-label">
-                        {nights === 1 ? 'noche' : 'noches'}
-                      </span>
-                    </div>
-
-                    <div className="cc-field">
-                      <label htmlFor="checkout" className="cc-label">Salida</label>
-                      <input
-                        id="checkout"
-                        name="checkout"
-                        type="date"
-                        className="cc-input cc-input--date"
-                        value={formData.checkout}
-                        min={formData.checkin || minCheckin}
-                        onChange={handleChange}
-                      />
-                    </div>
-                  </div>
-
-                  {invalidDates && (
-                    <p className="cc-hint cc-hint--error" role="alert">
-                      La salida tiene que ser posterior a la llegada.
-                    </p>
-                  )}
-
-                  <div className="cc-field">
-                    <span className="cc-label" id="huespedes-label">Huéspedes</span>
-                    <div className="cc-guests" role="radiogroup" aria-labelledby="huespedes-label">
-                      {GUEST_OPTIONS.map((n) => {
-                        const active = formData.huespedes === n;
-                        return (
-                          <button
-                            key={n}
-                            type="button"
-                            role="radio"
-                            aria-checked={active}
-                            className={`cc-guest ${active ? 'cc-guest--on' : ''}`}
-                            onClick={() => chooseGuests(n)}
-                          >
-                            {active && (
-                              <motion.span
-                                layoutId="cc-guest-bg"
-                                className="cc-guest-bg"
-                                transition={{ type: 'spring', stiffness: 420, damping: 34 }}
-                              />
-                            )}
-                            <span className="cc-guest-num">{n}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </fieldset>
-
-                {/* 03 — Mensaje */}
-                <fieldset className="cc-step">
-                  <legend className="cc-step-legend">
-                    <span className="cc-step-num">03</span>
-                    Tu mensaje
-                  </legend>
-
-                  <div className="cc-field">
-                    <label htmlFor="mensaje" className="cc-label cc-label--sr">Mensaje</label>
-                    <textarea
-                      id="mensaje"
-                      name="mensaje"
-                      className="cc-input cc-textarea"
-                      value={formData.mensaje}
-                      onChange={handleChange}
-                      placeholder="Fechas, ocasión, si venís con niños o mascotas, cualquier duda…"
-                      rows={5}
-                    />
-                  </div>
-                </fieldset>
-
-                <footer className="cc-form-foot">
-                  <button
-                    type="submit"
-                    className="cc-submit"
-                    disabled={status === 'loading' || invalidDates}
-                  >
-                    <span>{status === 'loading' ? 'Enviando…' : 'Enviar consulta'}</span>
-                    <span className="cc-submit-icon">
-                      {status === 'loading' ? <span className="cc-spinner" /> : <IconArrow />}
+                  <div className="ct-field-foot">
+                    {fieldError("message") ? (
+                      <span className="ct-field-error" id="ct-message-err">{fieldError("message")}</span>
+                    ) : <span />}
+                    <span className="ct-counter">
+                      {fields.message.length}/{LIMITS.message}
                     </span>
-                  </button>
-                  <p className="cc-form-privacy">
-                    Solo usamos tus datos para responder a esta consulta.
-                  </p>
-                </footer>
+                  </div>
+                </div>
+
+                {/* Aceptación de términos (obligatoria) */}
+                <label className={`ct-terms ${termsError ? "has-error" : ""}`}>
+                  <input
+                    type="checkbox"
+                    className="ct-terms-input"
+                    checked={acceptedTerms}
+                    onChange={(e) => {
+                      setAcceptedTerms(e.target.checked);
+                      if (e.target.checked) setTermsError(false);
+                    }}
+                    aria-invalid={termsError}
+                    aria-describedby={termsError ? "ct-terms-err" : undefined}
+                    required
+                  />
+                  <span className="ct-terms-box" aria-hidden="true">
+                    <svg viewBox="0 0 16 16" width="12" height="12">
+                      <path d="M3 8.5L6.5 12L13 4.5" fill="none" strokeWidth="2.2" strokeLinecap="square" />
+                    </svg>
+                  </span>
+                  <span className="ct-terms-text">
+                    Acepto los{" "}
+                    <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                      Términos y Condiciones
+                    </a>{" "}
+                    y la{" "}
+                    <a href="/policy-privacity" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                      Política de Privacidad
+                    </a>{" "}
+                    de Keiser Group, y autorizo el uso de mis datos para responder esta consulta.
+                  </span>
+                </label>
+                {termsError && (
+                  <span className="ct-field-error ct-terms-error" id="ct-terms-err">
+                    Tenés que aceptar los términos y condiciones para enviar la consulta.
+                  </span>
+                )}
+
+                {/* Honeypot: invisible para personas, los bots lo completan */}
+                <div className="ct-hp" aria-hidden="true">
+                  <label htmlFor="ct-website">No completar</label>
+                  <input
+                    id="ct-website"
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                  />
+                </div>
 
                 <AnimatePresence>
-                  {status === 'error' && (
+                  {status === "error" && serverError && (
                     <motion.p
-                      className="cc-error"
+                      className="ct-server-error"
                       role="alert"
-                      initial={{ opacity: 0, y: -6 }}
+                      initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0 }}
                     >
-                      Hubo un problema al enviar tu consulta. Inténtalo de nuevo o
-                      escríbenos directamente por{' '}
-                      <a href="https://wa.me/34633491825" target="_blank" rel="noopener noreferrer">
-                        WhatsApp
-                      </a>.
+                      {serverError}
                     </motion.p>
                   )}
                 </AnimatePresence>
+
+                <button type="submit" className="ct-submit" disabled={status === "sending"}>
+                  <span className="ct-submit-text">
+                    {status === "sending" ? "Enviando…" : "Enviar consulta"}
+                  </span>
+                  <span className="ct-submit-icon">
+                    {status === "sending" ? <span className="ct-spinner" /> : "→"}
+                  </span>
+                </button>
+
               </motion.form>
             )}
           </AnimatePresence>
-        </motion.div>
+        </motion.section>
+      </div>
+
+      {/* ── SEDES ── */}
+      <section className="ct-sites">
+        <div className="ct-sites-inner">
+          {SITES.map((site, i) => (
+            <motion.a
+              key={site.city}
+              href={site.map}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ct-site"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.9, ease: EASE, delay: i * 0.1 }}
+            >
+              <span className="ct-site-n">{String(i + 1).padStart(2, "0")}</span>
+              <span className="ct-site-tag">{site.tag}</span>
+              <span className="ct-site-city">{site.city}</span>
+              <span className="ct-site-coord">{site.coord}</span>
+              <span className="ct-site-lines">
+                {site.lines.map((l) => (
+                  <span key={l}>{l}</span>
+                ))}
+              </span>
+              <span className="ct-site-cta">
+                Cómo llegar <span aria-hidden="true">↗</span>
+              </span>
+              <span className="ct-site-pin" aria-hidden="true" />
+            </motion.a>
+          ))}
+        </div>
       </section>
-    </div>
+
+      <span className="ct-hazard" aria-hidden="true" />
+    </main>
   );
 };
 
