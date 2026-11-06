@@ -1,0 +1,328 @@
+/* ==========================================================
+   gestionReservas.css — Quinta de Argos
+   Prefijo de clases: gr-*
+   El resto de piezas (campos, botones, mensajes) reutiliza las
+   clases cq-* de configQuinta.css. Aquí solo va lo nuevo, con
+   currentColor para que funcione igual en tema claro y oscuro.
+   ========================================================== */
+
+.gr {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.gr-textarea {
+  resize: vertical;
+  min-height: 3.2rem;
+  font-family: inherit;
+}
+
+.gr-resumen {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+}
+
+/* ---------- Bloques de listado ---------- */
+
+.gr-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid currentColor;
+  border-top-color: color-mix(in srgb, currentColor 15%, transparent);
+}
+
+.gr-block-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.gr-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.gr-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.gr-fila--abierta {
+  padding-bottom: 1.1rem;
+}
+
+.gr-fila-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.75rem;
+  min-width: 0;
+  flex: 1 1 260px;
+}
+
+.gr-fechas {
+  font-weight: 500;
+  font-size: 0.92rem;
+}
+
+.gr-detalle {
+  flex-basis: 100%;
+  font-size: 0.82rem;
+  opacity: 0.7;
+  overflow-wrap: anywhere;
+}
+
+.gr-detalle--error {
+  opacity: 1;
+  color: #9a4a34;
+}
+
+/* ---------- Etiquetas de tipo ---------- */
+
+.gr-badge {
+  font-family: 'Helvetica Neue', 'Courier New', monospace;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+  border-radius: 2px;
+  border: 1px solid currentColor;
+}
+
+.gr-badge--web {
+  color: #b8763e;
+}
+
+.gr-badge--direct {
+  color: #6b7a55;
+}
+
+.gr-badge--owner {
+  opacity: 0.75;
+}
+
+/* Fianza de una estancia ya terminada: lista para devolver */
+.gr-badge--terminada {
+  color: #6b7a55;
+}
+
+.gr-cancelar {
+  flex-shrink: 0;
+}
+
+/* ---------- Panel de cancelación / devolución ---------- */
+
+.gr-cancel {
+  flex-basis: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px dashed color-mix(in srgb, currentColor 30%, transparent);
+  border-radius: 2px;
+}
+
+.gr-cancel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Explicación del cálculo según la política de cancelación */
+.gr-politica {
+  margin: 0;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  border-left: 3px solid color-mix(in srgb, currentColor 25%, transparent);
+  background-color: color-mix(in srgb, currentColor 4%, transparent);
+  opacity: 0.75;
+  transition: opacity 0.25s ease, border-color 0.25s ease;
+}
+
+.gr-politica--on {
+  opacity: 1;
+  border-left-color: #b8763e;
+}
+
+/* ---------- Acciones de la fila (Cambiar fechas · Cancelar) ---------- */
+
+.gr-fila-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+/* Link de pago de una ampliación sin pagar */
+.gr-pendiente {
+  flex-basis: 100%;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  padding: 0.35rem 0.6rem;
+  border-left: 3px solid #b8763e;
+  background-color: color-mix(in srgb, #b8763e 8%, transparent);
+}
+
+/* ---------- Panel de cambio de fechas ---------- */
+
+.gr-mod-resumen {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.gr-mod-linea {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.gr-noches {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.gr-noches-titulo {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  opacity: 0.8;
+}
+
+.gr-noches-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.25rem 1rem;
+}
+
+.gr-noches-lista li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.84rem;
+  padding: 0.2rem 0;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+
+.gr-mod-bloque {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+}
+
+/* Link de pago recién creado */
+.gr-link {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.gr-link-url {
+  flex: 1 1 260px;
+  min-width: 0;
+  font-size: 0.82rem;
+}
+
+/* Qué ocupa las noches que no están libres */
+.gr-bloqueos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.75rem 0.85rem;
+  border-left: 3px solid #b3423a;
+  background-color: color-mix(in srgb, #b3423a 7%, transparent);
+}
+
+.gr-bloqueos-titulo {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.gr-bloqueos-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.gr-bloqueo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.gr-bloqueo-titulo {
+  font-weight: 600;
+}
+
+.gr-bloqueo-detalle {
+  opacity: 0.8;
+}
+
+.gr-bloqueo--liberable .gr-bloqueo-titulo::before {
+  content: "";
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-right: 0.4rem;
+  border-radius: 50%;
+  background-color: #b8763e;
+  vertical-align: middle;
+}
+
+.gr-bloqueos-btn {
+  align-self: flex-start;
+}
+
+@media (max-width: 480px) {
+  .gr-cancel {
+    padding: 0.75rem;
+  }
+
+  .gr-cancel-actions .cq-btn {
+    width: 100%;
+  }
+
+  .gr-link .cq-btn {
+    width: 100%;
+  }
+
+  .gr-bloqueos-btn {
+    width: 100%;
+  }
+}

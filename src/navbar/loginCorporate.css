@@ -1,0 +1,861 @@
+/* ==========================================================
+   loginCorporate.css — Keiser Group
+   Panel lateral que se desliza desde la derecha.
+   Prefijo: log-corp-*
+   ========================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
+
+.log-corp-overlay {
+    --lg-yellow: #e3b14e;
+    --lg-black: #000000;
+    --lg-white: #ffffff;
+    --lg-error: #ff5a4a;
+    --lg-ease: cubic-bezier(0.76, 0, 0.24, 1);
+    --lg-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: flex-end;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    font-family: 'Montserrat', sans-serif;
+    font-style: normal;
+    animation: lg-fade-in 0.6s ease both;
+}
+
+.log-corp-overlay * {
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+    font-style: normal;
+}
+
+.log-corp-overlay.log-corp-fade-out {
+    animation: lg-fade-out 0.6s ease both;
+}
+
+@keyframes lg-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes lg-fade-out { from { opacity: 1; } to { opacity: 0; } }
+
+/* Palabra gigante de fondo, del lado izquierdo */
+.log-corp-backdrop-word {
+    position: absolute;
+    left: 4vw;
+    bottom: 4vh;
+    font-size: clamp(6rem, 16vw, 18rem);
+    font-weight: 900;
+    letter-spacing: -0.07em;
+    line-height: 0.8;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.12);
+    pointer-events: none;
+    user-select: none;
+    animation: lg-word-in 1.2s var(--lg-ease-out) 0.15s both;
+}
+
+@keyframes lg-word-in {
+    from { opacity: 0; transform: translateX(-60px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* ── PANEL ────────────────────────────────────────────────── */
+.log-corp-panel {
+    position: relative;
+    width: min(560px, 100vw);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    animation: lg-slide-in 0.8s var(--lg-ease) both;
+}
+
+.log-corp-panel.dark {
+    --lg-bg: #000000;
+    --lg-fg: #ffffff;
+    --lg-soft: rgba(255, 255, 255, 0.62);
+    --lg-mute: rgba(255, 255, 255, 0.38);
+    --lg-line: rgba(255, 255, 255, 0.14);
+    --lg-input: rgba(255, 255, 255, 0.04);
+    background: var(--lg-bg);
+    color: var(--lg-fg);
+    border-left: 1px solid var(--lg-line);
+}
+
+.log-corp-panel.light {
+    --lg-bg: #ffffff;
+    --lg-fg: #000000;
+    --lg-soft: rgba(0, 0, 0, 0.62);
+    --lg-mute: rgba(0, 0, 0, 0.4);
+    --lg-line: rgba(0, 0, 0, 0.12);
+    --lg-input: rgba(0, 0, 0, 0.03);
+    background: var(--lg-bg);
+    color: var(--lg-fg);
+}
+
+.log-corp-panel.log-corp-exit {
+    animation: lg-slide-out 0.6s var(--lg-ease) both;
+}
+
+@keyframes lg-slide-in {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes lg-slide-out {
+    from { transform: translateX(0); }
+    to { transform: translateX(100%); }
+}
+
+/* Borde amarillo que se dibuja de arriba a abajo */
+.log-corp-edge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--lg-yellow);
+    transform-origin: top;
+    animation: lg-edge 1s var(--lg-ease) 0.45s both;
+}
+
+@keyframes lg-edge {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+}
+
+.log-corp-hazard {
+    display: block;
+    width: 100%;
+    height: 8px;
+    flex-shrink: 0;
+    margin-top: auto;
+    background: repeating-linear-gradient(-45deg, var(--lg-yellow) 0 16px, var(--lg-black) 16px 32px);
+}
+
+/* ── HEADER ───────────────────────────────────────────────── */
+.log-corp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 26px clamp(24px, 4vw, 48px);
+    border-bottom: 1px solid var(--lg-line);
+}
+
+.log-corp-panel-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.26em;
+    color: var(--lg-soft);
+}
+
+.log-corp-panel-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--lg-yellow);
+    box-shadow: 0 0 0 4px rgba(227, 177, 78, 0.18);
+}
+
+.log-corp-close-btn {
+    position: relative;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border: 0;
+    background: var(--lg-yellow);
+    cursor: pointer;
+    transition: transform 0.6s var(--lg-ease);
+}
+
+.log-corp-close-btn:hover {
+    transform: rotate(90deg);
+}
+
+.log-corp-close-btn span {
+    position: absolute;
+    left: 13px;
+    top: 22px;
+    width: 20px;
+    height: 2px;
+    background: var(--lg-black);
+}
+
+.log-corp-close-btn span:nth-child(1) { transform: rotate(45deg); }
+.log-corp-close-btn span:nth-child(2) { transform: rotate(-45deg); }
+
+/* ── CONTENT ──────────────────────────────────────────────── */
+.log-corp-content {
+    padding: clamp(32px, 5vh, 56px) clamp(24px, 4vw, 48px) 40px;
+}
+
+.log-corp-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.24em;
+    color: var(--lg-black);
+    background: var(--lg-yellow);
+    animation: lg-up 0.8s var(--lg-ease-out) 0.5s both;
+}
+
+.log-corp-badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--lg-black);
+    animation: lg-blink 1.6s ease-in-out infinite;
+}
+
+@keyframes lg-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+}
+
+@keyframes lg-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.log-title {
+    margin: 26px 0 0;
+    font-size: clamp(2.6rem, 6vw, 3.8rem);
+    font-weight: 900;
+    line-height: 0.92;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+}
+
+.log-corp-line {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.04em;
+    font-size: 2rem;
+}
+
+.log-corp-line > span {
+    display: block;
+    animation: lg-mask 1s var(--lg-ease-out) both;
+}
+
+.log-corp-line:nth-child(1) > span { animation-delay: 0.55s; }
+.log-corp-line:nth-child(2) > span { animation-delay: 0.65s; }
+
+@keyframes lg-mask {
+    from { transform: translateY(105%); }
+    to { transform: translateY(0); }
+}
+
+.log-corp-accent {
+    color: var(--lg-yellow);
+}
+
+.log-corp-desc {
+    margin: 22px 0 0;
+    max-width: 42ch;
+    font-size: 0.9rem;
+    font-weight: 300;
+    line-height: 1.7;
+    color: var(--lg-soft);
+    animation: lg-up 0.8s var(--lg-ease-out) 0.75s both;
+}
+
+/* ── FORM ─────────────────────────────────────────────────── */
+.log-corp-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 40px;
+    animation: lg-up 0.9s var(--lg-ease-out) 0.85s both;
+}
+
+.log-corp-input-wrapper {
+    display: flex;
+    gap: 18px;
+    padding: 18px 0 6px;
+    border-top: 1px solid var(--lg-line);
+}
+
+.log-corp-number {
+    padding-top: 2px;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    color: var(--lg-yellow);
+}
+
+.log-corp-group {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.log-corp-group label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--lg-mute);
+}
+
+.log-corp-group input {
+    width: 100%;
+    height: 50px;
+    padding: 0 14px;
+    border: 0;
+    border-bottom: 1px solid var(--lg-line);
+    background: var(--lg-input);
+    color: var(--lg-fg);
+    font-size: 1rem;
+    font-weight: 500;
+    outline: none;
+    border-radius: 0;
+    transition: background 0.3s ease;
+}
+
+.log-corp-group input::placeholder {
+    color: var(--lg-mute);
+    font-weight: 400;
+}
+
+.log-corp-group input:focus {
+    background: transparent;
+}
+
+/* Línea amarilla que se dibuja al enfocar */
+.log-corp-focus {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--lg-yellow);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.6s var(--lg-ease);
+    pointer-events: none;
+}
+
+.log-corp-group:focus-within .log-corp-focus {
+    transform: scaleX(1);
+}
+
+.log-corp-group:focus-within label {
+    color: var(--lg-yellow);
+}
+
+.log-corp-pass-field {
+    position: relative;
+}
+
+.log-corp-pass-field input {
+    padding-right: 52px;
+}
+
+.log-corp-eye {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    opacity: 0.55;
+    transition: opacity 0.3s ease;
+}
+
+.log-corp-eye:hover {
+    opacity: 1;
+}
+
+.log-corp-panel.dark .log-corp-eye img {
+    filter: invert(1);
+}
+
+.log-corp-forgot {
+    align-self: flex-start;
+    margin: 4px 0 0 40px;
+    padding: 4px 0;
+    border: 0;
+    background: transparent;
+    color: var(--lg-soft);
+    font-size: 0.72rem;
+    font-weight: 500;
+    cursor: pointer;
+    background-image: linear-gradient(var(--lg-yellow), var(--lg-yellow));
+    background-position: left bottom;
+    background-size: 0% 1px;
+    background-repeat: no-repeat;
+    transition: background-size 0.5s var(--lg-ease), color 0.3s ease;
+}
+
+.log-corp-forgot:hover {
+    color: var(--lg-fg);
+    background-size: 100% 1px;
+}
+
+.log-corp-forgot strong {
+    font-weight: 800;
+    color: var(--lg-yellow);
+}
+
+.log-corp-register-link {
+    align-self: center;
+    margin: 18px 0 0;
+}
+
+/* ── MENSAJES ─────────────────────────────────────────────── */
+.log-corp-error-msg {
+    margin: 10px 0 0;
+    padding: 14px 16px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    line-height: 1.55;
+    color: var(--lg-error);
+    border-left: 3px solid var(--lg-error);
+    background: rgba(255, 90, 74, 0.08);
+    animation: lg-up 0.5s var(--lg-ease-out) both;
+}
+
+.log-corp-error-msg.is-info {
+    color: var(--lg-fg);
+    border-left-color: var(--lg-yellow);
+    background: rgba(227, 177, 78, 0.12);
+}
+
+/* ── BOTONES ──────────────────────────────────────────────── */
+.log-corp-submit-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 62px;
+    margin-top: 18px;
+    padding: 0 0 0 24px;
+    border: 0;
+    background: var(--lg-yellow);
+    color: var(--lg-black);
+    cursor: pointer;
+    overflow: hidden;
+    isolation: isolate;
+    transition: color 0.5s var(--lg-ease), opacity 0.3s ease;
+}
+
+.log-corp-submit-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--lg-fg);
+    transform: translateY(101%);
+    transition: transform 0.6s var(--lg-ease);
+}
+
+.log-corp-submit-btn:not(:disabled):hover {
+    color: var(--lg-bg);
+}
+
+.log-corp-submit-btn:not(:disabled):hover::before {
+    transform: translateY(0);
+}
+
+.log-corp-submit-btn:disabled {
+    cursor: wait;
+    opacity: 0.85;
+}
+
+.log-corp-submit-text {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+}
+
+.log-corp-submit-icon {
+    display: grid;
+    place-items: center;
+    width: 62px;
+    height: 62px;
+    font-size: 1.3rem;
+    border-left: 1px solid rgba(0, 0, 0, 0.15);
+    transition: transform 0.5s var(--lg-ease);
+}
+
+.log-corp-submit-btn:not(:disabled):hover .log-corp-submit-icon {
+    transform: translateX(6px);
+}
+
+.log-corp-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: lg-spin 0.7s linear infinite;
+}
+
+@keyframes lg-spin {
+    to { transform: rotate(360deg); }
+}
+
+.log-corp-secondary-btn {
+    width: 100%;
+    height: 50px;
+    margin-top: 6px;
+    border: 1px solid var(--lg-line);
+    background: transparent;
+    color: var(--lg-fg);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: border-color 0.4s ease, color 0.4s ease;
+}
+
+.log-corp-secondary-btn:not(:disabled):hover {
+    border-color: var(--lg-yellow);
+    color: var(--lg-yellow);
+}
+
+.log-corp-secondary-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ── NOTA DE SEGURIDAD ────────────────────────────────────── */
+.log-corp-security-note {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 34px;
+    padding-top: 22px;
+    border-top: 1px solid var(--lg-line);
+    color: var(--lg-mute);
+    animation: lg-up 0.8s var(--lg-ease-out) 1s both;
+}
+
+.log-corp-security {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+}
+
+/* ── EMAIL NO VERIFICADO ──────────────────────────────────── */
+.log-corp-verify {
+    display: flex;
+    gap: 14px;
+    margin-top: 10px;
+    padding: 18px;
+    border: 1px solid rgba(227, 177, 78, 0.45);
+    background: rgba(227, 177, 78, 0.08);
+    animation: lg-up 0.5s var(--lg-ease-out) both;
+}
+
+.log-corp-verify-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    background: var(--lg-yellow);
+    color: var(--lg-black);
+}
+
+.log-corp-verify-body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.log-corp-verify-title {
+    margin: 0;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--lg-yellow);
+}
+
+.log-corp-verify-text {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 400;
+    line-height: 1.55;
+    color: var(--lg-soft);
+}
+
+.log-corp-verify-btn {
+    align-self: flex-start;
+    margin-top: 6px;
+    padding: 4px 0;
+    border: 0;
+    background: transparent;
+    color: var(--lg-fg);
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    background-image: linear-gradient(var(--lg-yellow), var(--lg-yellow));
+    background-position: left bottom;
+    background-size: 100% 2px;
+    background-repeat: no-repeat;
+    transition: background-size 0.5s var(--lg-ease), color 0.3s ease;
+}
+
+.log-corp-verify-btn:not(:disabled):hover {
+    color: var(--lg-yellow);
+    background-size: 30% 2px;
+}
+
+.log-corp-verify-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ── FOOTER: REGISTRO ─────────────────────────────────────── */
+.log-corp-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: auto;
+    padding: 24px clamp(24px, 4vw, 48px);
+    border-top: 1px solid var(--lg-line);
+    animation: lg-up 0.8s var(--lg-ease-out) 1s both;
+}
+
+.log-corp-footer-hint {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--lg-mute);
+}
+
+.log-corp-footer-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--lg-fg);
+    font-size: clamp(1.2rem, 2.4vw, 1.6rem);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.4s ease;
+}
+
+.log-corp-footer-btn:hover {
+    color: var(--lg-yellow);
+}
+
+.log-corp-footer-arrow {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+    font-weight: 400;
+    border: 1px solid var(--lg-line);
+    border-radius: 50%;
+    transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease, transform 0.5s var(--lg-ease);
+}
+
+.log-corp-footer-btn:hover .log-corp-footer-arrow {
+    background: var(--lg-yellow);
+    border-color: var(--lg-yellow);
+    color: var(--lg-black);
+    transform: translateX(4px);
+}
+
+/* El hazard queda pegado abajo del footer */
+.log-corp-footer + .log-corp-hazard {
+    margin-top: 0;
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────── */
+@media (max-width: 760px) {
+    .log-corp-backdrop-word {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .log-corp-forgot {
+        margin-left: 0;
+    }
+
+    .log-corp-input-wrapper {
+        gap: 12px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .log-corp-overlay,
+    .log-corp-overlay * {
+        animation-duration: 0.01ms !important;
+        animation-delay: 0ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+/* ══════════════════════════════════════════════════════════
+   AJUSTE A 100% DE ALTO — sin scroll
+   Todo escala con la altura de la pantalla (vh) entre un mínimo
+   y el tamaño original, así el panel entra completo en cualquier
+   pantalla. Va al final para pisar los valores de arriba.
+══════════════════════════════════════════════════════════ */
+.log-corp-overlay {
+    height: 100vh;
+    height: 100dvh;
+}
+
+.log-corp-panel {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+}
+
+.log-corp-header {
+    flex-shrink: 0;
+    padding-top: clamp(12px, 2.6vh, 26px);
+    padding-bottom: clamp(12px, 2.6vh, 26px);
+}
+
+.log-corp-close-btn {
+    width: clamp(38px, 5.2vh, 46px);
+    height: clamp(38px, 5.2vh, 46px);
+}
+
+.log-corp-close-btn span {
+    left: 50%;
+    top: 50%;
+    margin: -1px 0 0 -10px;
+}
+
+.log-corp-content {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: clamp(12px, 3vh, 48px);
+    padding-bottom: clamp(12px, 3vh, 40px);
+}
+
+.log-title {
+    margin: 0;
+}
+
+.log-corp-line {
+    font-size: clamp(1.4rem, 3.8vh, 2rem);
+}
+
+.log-corp-desc {
+    margin-top: clamp(8px, 1.6vh, 22px);
+    font-size: clamp(0.8rem, 1.6vh, 0.9rem);
+}
+
+.log-corp-form {
+    margin-top: clamp(12px, 3vh, 40px);
+    gap: clamp(4px, 0.8vh, 10px);
+}
+
+.log-corp-input-wrapper {
+    padding-top: clamp(8px, 1.6vh, 18px);
+    padding-bottom: clamp(2px, 0.6vh, 6px);
+}
+
+.log-corp-group {
+    gap: clamp(5px, 1vh, 10px);
+}
+
+.log-corp-group input {
+    height: clamp(40px, 5.6vh, 50px);
+}
+
+.log-corp-forgot {
+    margin-top: 0;
+}
+
+.log-corp-error-msg {
+    margin-top: clamp(4px, 0.8vh, 10px);
+    padding: clamp(8px, 1.4vh, 14px) 14px;
+    font-size: clamp(0.72rem, 1.5vh, 0.8rem);
+}
+
+.log-corp-verify {
+    margin-top: clamp(4px, 0.8vh, 10px);
+    padding: clamp(10px, 1.6vh, 18px);
+}
+
+.log-corp-verify-icon {
+    width: clamp(32px, 4.4vh, 40px);
+    height: clamp(32px, 4.4vh, 40px);
+}
+
+.log-corp-verify-text {
+    font-size: clamp(0.72rem, 1.5vh, 0.8rem);
+}
+
+.log-corp-submit-btn {
+    height: clamp(48px, 6.6vh, 62px);
+    margin-top: clamp(8px, 1.8vh, 18px);
+    flex-shrink: 0;
+}
+
+.log-corp-submit-icon {
+    width: clamp(48px, 6.6vh, 62px);
+    height: clamp(48px, 6.6vh, 62px);
+}
+
+.log-corp-footer {
+    flex-shrink: 0;
+    margin-top: 0;
+    padding-top: clamp(12px, 2.4vh, 24px);
+    padding-bottom: clamp(12px, 2.4vh, 24px);
+}
+
+.log-corp-footer-btn {
+    font-size: clamp(1rem, 2.4vh, 1.6rem);
+}
+
+.log-corp-footer-arrow {
+    width: clamp(32px, 4.4vh, 40px);
+    height: clamp(32px, 4.4vh, 40px);
+}
+
+/* Pantallas bajas: se resigna la descripción */
+@media (max-height: 640px) {
+    .log-corp-desc {
+        display: none;
+    }
+}
+
+/* La palabra de fondo entra completa en el espacio libre a la izquierda */
+.log-corp-backdrop-word {
+    font-size: clamp(3rem, calc((100vw - 600px) / 4.6), 16rem);
+    white-space: nowrap;
+}

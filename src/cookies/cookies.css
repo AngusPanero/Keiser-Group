@@ -1,0 +1,239 @@
+/* ==========================================================
+   cookies.css — Keiser Group
+   Aviso de cookies flotante. Prefijo: cookie-*
+   ========================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
+
+.cookie-wrapper {
+    --ck-yellow: #e3b14e;
+    --ck-black: #000000;
+    --ck-white: #ffffff;
+    --ck-ease: cubic-bezier(0.76, 0, 0.24, 1);
+    --ck-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+    position: fixed;
+    left: clamp(12px, 2.4vw, 32px);
+    bottom: clamp(12px, 2.4vw, 32px);
+    z-index: 900;
+    width: min(560px, calc(100vw - 24px));
+    font-family: 'Montserrat', sans-serif;
+    font-style: normal;
+    animation: ck-in 0.9s var(--ck-ease-out) both;
+}
+
+.cookie-wrapper * {
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+    font-style: normal;
+}
+
+.cookie-wrapper.is-exit {
+    animation: ck-out 0.5s var(--ck-ease) both;
+}
+
+@keyframes ck-in {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ck-out {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(40px); }
+}
+
+.cookie-wrapper.dark {
+    --ck-bg: rgba(0, 0, 0, 0.92);
+    --ck-fg: #ffffff;
+    --ck-soft: rgba(255, 255, 255, 0.68);
+    --ck-line: rgba(255, 255, 255, 0.14);
+}
+
+.cookie-wrapper.light {
+    --ck-bg: rgba(255, 255, 255, 0.94);
+    --ck-fg: #000000;
+    --ck-soft: rgba(0, 0, 0, 0.66);
+    --ck-line: rgba(0, 0, 0, 0.12);
+}
+
+/* ── BANNER ───────────────────────────────────────────────── */
+.cookie-banner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 22px 22px 20px 26px;
+    background: var(--ck-bg);
+    color: var(--ck-fg);
+    border: 1px solid var(--ck-line);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+}
+
+/* Borde amarillo que se dibuja al aparecer */
+.cookie-edge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--ck-yellow);
+    transform-origin: top;
+    animation: ck-edge 0.9s var(--ck-ease) 0.3s both;
+}
+
+@keyframes ck-edge {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+}
+
+.cookie-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.cookie-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    background: var(--ck-yellow);
+    color: var(--ck-black);
+}
+
+.cookie-text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cookie-kicker {
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.24em;
+    color: var(--ck-yellow);
+}
+
+.cookie-text p {
+    margin: 0;
+    font-size: 0.84rem;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--ck-soft);
+}
+
+.cookie-text strong {
+    font-weight: 700;
+    color: var(--ck-fg);
+}
+
+.cookie-link {
+    color: var(--ck-fg);
+    font-weight: 700;
+    text-decoration: none;
+    border-bottom: 1px solid var(--ck-yellow);
+    transition: color 0.3s ease;
+}
+
+.cookie-link:hover {
+    color: var(--ck-yellow);
+}
+
+/* ── ACCIONES ─────────────────────────────────────────────── */
+.cookie-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.cookie-btn-ghost {
+    height: 46px;
+    padding: 0 18px;
+    border: 1px solid var(--ck-line);
+    background: transparent;
+    color: var(--ck-fg);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: border-color 0.4s ease;
+}
+
+.cookie-btn-ghost:hover {
+    border-color: currentColor;
+}
+
+.cookie-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    height: 46px;
+    padding: 0 22px;
+    border: 0;
+    background: var(--ck-yellow);
+    color: var(--ck-black);
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    overflow: hidden;
+    isolation: isolate;
+    transition: color 0.5s var(--ck-ease);
+}
+
+.cookie-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--ck-fg);
+    transform: translateY(101%);
+    transition: transform 0.55s var(--ck-ease);
+}
+
+.cookie-btn:hover {
+    color: var(--ck-bg);
+}
+
+.cookie-wrapper.dark .cookie-btn:hover { color: var(--ck-black); }
+.cookie-wrapper.light .cookie-btn:hover { color: var(--ck-white); }
+
+.cookie-btn:hover::before {
+    transform: translateY(0);
+}
+
+.cookie-btn-arrow {
+    transition: transform 0.5s var(--ck-ease);
+}
+
+.cookie-btn:hover .cookie-btn-arrow {
+    transform: translateX(4px);
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────── */
+@media (max-width: 480px) {
+    .cookie-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .cookie-btn {
+        justify-content: center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cookie-wrapper,
+    .cookie-wrapper * {
+        animation-duration: 0.01ms !important;
+        animation-delay: 0ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}

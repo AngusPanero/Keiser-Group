@@ -1,0 +1,85 @@
+body {
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* ==========================================================
+   SCROLLBAR — estilo acorde a la paleta de Quinta de Argos
+   (pino / arcilla / crema). Funciona en Chrome, Edge, Safari
+   (::-webkit-scrollbar) y Firefox (scrollbar-color).
+   ========================================================== */
+
+html {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #b8763e rgba(42, 54, 38, 0.08); /* Firefox: thumb / track */
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(42, 54, 38, 0.06);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #b8763e;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #9a6234;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+select:-webkit-autofill,
+input:autofill {
+  transition:
+    background-color 600000s 0s,
+    color            600000s 0s;
+  -webkit-text-fill-color: inherit;
+  caret-color: inherit;
+}
+
+/* ==========================================================
+   SAFE AREA (notch / barra de estado en mobile)
+   ========================================================== */
+
+:root {
+  --qa-top-bg: #000000; /* mismo color que el theme-color del index.html */
+}
+
+html {
+  /* Safari en iOS 26 tiñe la barra de estado con el fondo del html/body
+     o del elemento fixed que esté arriba de todo */
+  background-color: var(--qa-top-bg);
+}
+
+body {
+  /* Si el contenido de la web tiene otro fondo, ponelo en #root o en
+     tus secciones, no en body, para que la zona de arriba no quede blanca */
+  background-color: var(--qa-top-bg);
+}

@@ -1,0 +1,891 @@
+/* ==========================================================
+   registerMinimal.css — Keiser Group
+   Panel lateral que se desliza desde la derecha.
+   Prefijo: k-reg-*
+   ========================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
+
+.k-reg-overlay {
+    --rg-yellow: #e3b14e;
+    --rg-black: #000000;
+    --rg-white: #ffffff;
+    --rg-error: #ff5a4a;
+    --rg-ok: #3ccf7a;
+    --rg-ease: cubic-bezier(0.76, 0, 0.24, 1);
+    --rg-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: flex-end;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    font-family: 'Montserrat', sans-serif;
+    font-style: normal;
+    animation: rg-fade-in 0.6s ease both;
+}
+
+.k-reg-overlay * {
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+    font-style: normal;
+}
+
+.k-reg-overlay.k-reg-fade-out {
+    animation: rg-fade-out 0.6s ease both;
+}
+
+@keyframes rg-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes rg-fade-out { from { opacity: 1; } to { opacity: 0; } }
+
+.k-reg-backdrop-word {
+    position: absolute;
+    left: 4vw;
+    bottom: 4vh;
+    font-size: clamp(6rem, 18vw, 20rem);
+    font-weight: 900;
+    letter-spacing: -0.07em;
+    line-height: 0.8;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.12);
+    pointer-events: none;
+    user-select: none;
+    animation: rg-word-in 1.2s var(--rg-ease-out) 0.15s both;
+}
+
+@keyframes rg-word-in {
+    from { opacity: 0; transform: translateX(-60px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* ── PANEL ────────────────────────────────────────────────── */
+.k-reg-panel {
+    position: relative;
+    width: min(580px, 100vw);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    animation: rg-slide-in 0.8s var(--rg-ease) both;
+}
+
+.k-reg-panel.dark {
+    --rg-bg: #000000;
+    --rg-fg: #ffffff;
+    --rg-soft: rgba(255, 255, 255, 0.62);
+    --rg-mute: rgba(255, 255, 255, 0.38);
+    --rg-line: rgba(255, 255, 255, 0.14);
+    --rg-input: rgba(255, 255, 255, 0.04);
+    background: var(--rg-bg);
+    color: var(--rg-fg);
+    border-left: 1px solid var(--rg-line);
+}
+
+.k-reg-panel.light {
+    --rg-bg: #ffffff;
+    --rg-fg: #000000;
+    --rg-soft: rgba(0, 0, 0, 0.62);
+    --rg-mute: rgba(0, 0, 0, 0.4);
+    --rg-line: rgba(0, 0, 0, 0.12);
+    --rg-input: rgba(0, 0, 0, 0.03);
+    background: var(--rg-bg);
+    color: var(--rg-fg);
+}
+
+.k-reg-panel.k-reg-panel-exit {
+    animation: rg-slide-out 0.6s var(--rg-ease) both;
+}
+
+@keyframes rg-slide-in {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes rg-slide-out {
+    from { transform: translateX(0); }
+    to { transform: translateX(100%); }
+}
+
+.k-reg-edge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--rg-yellow);
+    transform-origin: top;
+    animation: rg-edge 1s var(--rg-ease) 0.45s both;
+}
+
+@keyframes rg-edge {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+}
+
+.k-reg-hazard {
+    display: block;
+    width: 100%;
+    height: 8px;
+    flex-shrink: 0;
+    margin-top: auto;
+    background: repeating-linear-gradient(-45deg, var(--rg-yellow) 0 16px, var(--rg-black) 16px 32px);
+}
+
+.k-reg-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── HEADER ───────────────────────────────────────────────── */
+.k-reg-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 26px clamp(24px, 4vw, 48px);
+    border-bottom: 1px solid var(--rg-line);
+}
+
+.k-reg-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.26em;
+    color: var(--rg-soft);
+}
+
+.k-reg-tag-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--rg-yellow);
+    box-shadow: 0 0 0 4px rgba(227, 177, 78, 0.18);
+}
+
+.k-reg-close {
+    position: relative;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border: 0;
+    background: var(--rg-yellow);
+    cursor: pointer;
+    transition: transform 0.6s var(--rg-ease);
+}
+
+.k-reg-close:hover {
+    transform: rotate(90deg);
+}
+
+.close-line {
+    position: absolute;
+    left: 13px;
+    top: 22px;
+    width: 20px;
+    height: 2px;
+    background: var(--rg-black);
+}
+
+.close-line.l1 { transform: rotate(45deg); }
+.close-line.l2 { transform: rotate(-45deg); }
+
+/* ── MAIN ─────────────────────────────────────────────────── */
+.k-reg-main {
+    padding: clamp(32px, 5vh, 52px) clamp(24px, 4vw, 48px) 40px;
+}
+
+.k-reg-title {
+    margin: 0;
+    font-size: clamp(2.6rem, 6vw, 3.8rem);
+    font-weight: 900;
+    line-height: 0.92;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+}
+
+.k-reg-line {
+    font-size: 2rem;
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.04em;
+}
+
+.k-reg-line > span {
+    display: block;
+    animation: rg-mask 1s var(--rg-ease-out) both;
+}
+
+.k-reg-line:nth-child(1) > span { animation-delay: 0.5s; }
+.k-reg-line:nth-child(2) > span { animation-delay: 0.6s; }
+
+@keyframes rg-mask {
+    from { transform: translateY(105%); }
+    to { transform: translateY(0); }
+}
+
+@keyframes rg-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.k-reg-accent {
+    color: var(--rg-yellow);
+}
+
+.k-reg-sub {
+    margin-top: 18px;
+    padding: 4px 0;
+    border: 0;
+    background: transparent;
+    color: var(--rg-soft);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    animation: rg-up 0.8s var(--rg-ease-out) 0.7s both;
+    transition: color 0.3s ease;
+}
+
+.k-reg-sub strong {
+    font-weight: 800;
+    color: var(--rg-yellow);
+    background-image: linear-gradient(var(--rg-yellow), var(--rg-yellow));
+    background-position: left bottom;
+    background-size: 0% 1px;
+    background-repeat: no-repeat;
+    transition: background-size 0.5s var(--rg-ease);
+}
+
+.k-reg-sub:hover {
+    color: var(--rg-fg);
+}
+
+.k-reg-sub:hover strong {
+    background-size: 100% 1px;
+}
+
+/* ── FORM ─────────────────────────────────────────────────── */
+.k-reg-form {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 36px;
+    animation: rg-up 0.9s var(--rg-ease-out) 0.8s both;
+}
+
+.k-reg-group {
+    padding: 18px 0 8px;
+    border-top: 1px solid var(--rg-line);
+}
+
+.k-reg-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.k-reg-label-row label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--rg-mute);
+    transition: color 0.3s ease;
+}
+
+.k-reg-group:focus-within .k-reg-label-row label {
+    color: var(--rg-yellow);
+}
+
+.row-id {
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    color: var(--rg-yellow);
+}
+
+.k-reg-input-box {
+    position: relative;
+}
+
+.auth-input {
+    width: 100%;
+    height: 50px;
+    padding: 0 14px;
+    border: 0;
+    border-bottom: 1px solid var(--rg-line);
+    background: var(--rg-input);
+    color: var(--rg-fg);
+    font-size: 1rem;
+    font-weight: 500;
+    outline: none;
+    border-radius: 0;
+    transition: background 0.3s ease;
+}
+
+.k-reg-input-box:has(.k-reg-eye) .auth-input {
+    padding-right: 52px;
+}
+
+.auth-input::placeholder {
+    color: var(--rg-mute);
+    font-weight: 400;
+}
+
+.auth-input:focus {
+    background: transparent;
+}
+
+.box-focus {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--rg-yellow);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.6s var(--rg-ease);
+    pointer-events: none;
+}
+
+.k-reg-input-box:focus-within .box-focus {
+    transform: scaleX(1);
+}
+
+.k-reg-eye {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    opacity: 0.55;
+    transition: opacity 0.3s ease;
+}
+
+.k-reg-eye:hover {
+    opacity: 1;
+}
+
+.k-reg-panel.dark .k-reg-eye img {
+    filter: invert(1);
+}
+
+/* Medidor de fuerza */
+.k-reg-meter {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    margin-top: 10px;
+}
+
+.k-reg-meter span {
+    height: 3px;
+    background: var(--rg-line);
+    transition: background 0.4s ease;
+}
+
+.k-reg-meter span.on {
+    background: var(--rg-yellow);
+}
+
+/* Requisitos */
+.k-reg-req-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 14px;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.5s var(--rg-ease), opacity 0.4s ease, margin 0.5s var(--rg-ease);
+}
+
+.k-reg-req-grid.active {
+    max-height: 120px;
+    opacity: 1;
+    margin-top: 12px;
+}
+
+.k-reg-req-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--rg-mute);
+    transition: color 0.3s ease;
+}
+
+.req-icon {
+    width: 8px;
+    height: 8px;
+    border: 1px solid currentColor;
+    transform: rotate(45deg);
+    transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.k-reg-req-item.met {
+    color: var(--rg-fg);
+}
+
+.k-reg-req-item.met .req-icon {
+    background: var(--rg-yellow);
+    border-color: var(--rg-yellow);
+}
+
+/* ── LEGAL ────────────────────────────────────────────────── */
+.k-reg-legal {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-top: 16px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rg-line);
+    cursor: pointer;
+}
+
+.k-reg-legal-input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+}
+
+.k-reg-legal-box {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border: 1px solid var(--rg-soft);
+    transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.k-reg-legal-box svg path {
+    stroke: var(--rg-black);
+    stroke-dasharray: 20;
+    stroke-dashoffset: 20;
+    transition: stroke-dashoffset 0.4s var(--rg-ease);
+}
+
+.k-reg-legal-input:checked + .k-reg-legal-box {
+    background: var(--rg-yellow);
+    border-color: var(--rg-yellow);
+}
+
+.k-reg-legal-input:checked + .k-reg-legal-box svg path {
+    stroke-dashoffset: 0;
+}
+
+.k-reg-legal-input:focus-visible + .k-reg-legal-box {
+    outline: 2px solid var(--rg-yellow);
+    outline-offset: 3px;
+}
+
+.k-reg-legal-text {
+    font-size: 0.76rem;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--rg-soft);
+}
+
+.k-reg-legal-text a {
+    color: var(--rg-fg);
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px solid var(--rg-yellow);
+    transition: color 0.3s ease;
+}
+
+.k-reg-legal-text a:hover {
+    color: var(--rg-yellow);
+}
+
+/* ── FEEDBACK ─────────────────────────────────────────────── */
+.k-reg-feedback {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 8px;
+    margin-top: 8px;
+}
+
+.k-reg-error {
+    padding: 12px 14px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--rg-error);
+    border-left: 3px solid var(--rg-error);
+    background: rgba(255, 90, 74, 0.08);
+    animation: rg-up 0.5s var(--rg-ease-out) both;
+}
+
+/* ── SUBMIT ───────────────────────────────────────────────── */
+.k-reg-submit {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 62px;
+    margin-top: 12px;
+    padding: 0 0 0 24px;
+    border: 0;
+    background: var(--rg-yellow);
+    color: var(--rg-black);
+    cursor: pointer;
+    overflow: hidden;
+    isolation: isolate;
+    transition: color 0.5s var(--rg-ease), opacity 0.3s ease, filter 0.3s ease;
+}
+
+.k-reg-submit::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--rg-fg);
+    transform: translateY(101%);
+    transition: transform 0.6s var(--rg-ease);
+}
+
+.k-reg-submit:not(:disabled):hover {
+    color: var(--rg-bg);
+}
+
+.k-reg-submit:not(:disabled):hover::before {
+    transform: translateY(0);
+}
+
+.k-reg-submit:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+    filter: grayscale(0.6);
+}
+
+.k-reg-btn-text {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+}
+
+.k-reg-btn-icon {
+    display: grid;
+    place-items: center;
+    width: 62px;
+    height: 62px;
+    font-size: 1.3rem;
+    border-left: 1px solid rgba(0, 0, 0, 0.15);
+    transition: transform 0.5s var(--rg-ease);
+}
+
+.k-reg-submit:not(:disabled):hover .k-reg-btn-icon {
+    transform: translateX(6px);
+}
+
+.k-reg-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: rg-spin 0.7s linear infinite;
+}
+
+@keyframes rg-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────── */
+@media (max-width: 760px) {
+    .k-reg-backdrop-word {
+        display: none;
+    }
+}
+
+@media (max-width: 420px) {
+    .k-reg-req-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .k-reg-req-grid.active {
+        max-height: 160px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .k-reg-overlay,
+    .k-reg-overlay * {
+        animation-duration: 0.01ms !important;
+        animation-delay: 0ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ── DESCRIPCIÓN ──────────────────────────────────────────── */
+.k-reg-desc {
+    margin: 20px 0 0;
+    max-width: 44ch;
+    font-size: 0.88rem;
+    font-weight: 300;
+    line-height: 1.7;
+    color: var(--rg-soft);
+    animation: rg-up 0.8s var(--rg-ease-out) 0.7s both;
+}
+
+/* Aviso de éxito ("Cuenta creada...") */
+.k-reg-error.is-info {
+    color: var(--rg-fg);
+    border-left-color: var(--rg-yellow);
+    background: rgba(227, 177, 78, 0.12);
+}
+
+/* ── FOOTER: VOLVER AL LOGIN ──────────────────────────────── */
+.k-reg-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: auto;
+    padding: 24px clamp(24px, 4vw, 48px);
+    border-top: 1px solid var(--rg-line);
+    animation: rg-up 0.8s var(--rg-ease-out) 1s both;
+}
+
+.k-reg-footer + .k-reg-hazard {
+    margin-top: 0;
+}
+
+.k-reg-footer-hint {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--rg-mute);
+}
+
+.k-reg-footer-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--rg-fg);
+    font-size: clamp(1.2rem, 2.4vw, 1.6rem);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.4s ease;
+}
+
+.k-reg-footer-btn:hover {
+    color: var(--rg-yellow);
+}
+
+.k-reg-footer-arrow {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+    font-weight: 400;
+    border: 1px solid var(--rg-line);
+    border-radius: 50%;
+    transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease, transform 0.5s var(--rg-ease);
+}
+
+.k-reg-footer-btn:hover .k-reg-footer-arrow {
+    background: var(--rg-yellow);
+    border-color: var(--rg-yellow);
+    color: var(--rg-black);
+    transform: translateX(4px);
+}
+/* ══════════════════════════════════════════════════════════
+   AJUSTE A 100% DE ALTO — sin scroll
+   Todo escala con la altura de la pantalla (vh) entre un mínimo
+   y el tamaño original. Los requisitos de la contraseña quedan
+   siempre visibles en una fila compacta, así el panel no cambia
+   de alto al escribir. Va al final para pisar los valores de arriba.
+══════════════════════════════════════════════════════════ */
+.k-reg-overlay {
+    height: 100vh;
+    height: 100dvh;
+}
+
+.k-reg-panel {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+}
+
+.k-reg-wrapper {
+    flex: 1;
+    min-height: 0;
+}
+
+.k-reg-header {
+    flex-shrink: 0;
+    padding-top: clamp(12px, 2.4vh, 26px);
+    padding-bottom: clamp(12px, 2.4vh, 26px);
+}
+
+.k-reg-close {
+    width: clamp(38px, 5.2vh, 46px);
+    height: clamp(38px, 5.2vh, 46px);
+}
+
+.close-line {
+    left: 50%;
+    top: 50%;
+    margin: -1px 0 0 -10px;
+}
+
+.k-reg-main {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: clamp(10px, 2.4vh, 52px);
+    padding-bottom: clamp(10px, 2.4vh, 40px);
+}
+
+.k-reg-line {
+    font-size: clamp(1.4rem, 3.6vh, 2rem);
+}
+
+.k-reg-desc {
+    margin-top: clamp(6px, 1.4vh, 20px);
+    font-size: clamp(0.78rem, 1.5vh, 0.88rem);
+}
+
+.k-reg-form {
+    margin-top: clamp(10px, 2.4vh, 36px);
+    gap: clamp(2px, 0.5vh, 6px);
+}
+
+.k-reg-group {
+    padding-top: clamp(7px, 1.4vh, 18px);
+    padding-bottom: clamp(2px, 0.6vh, 8px);
+}
+
+.k-reg-label-row {
+    margin-bottom: clamp(5px, 1vh, 10px);
+}
+
+.auth-input {
+    height: clamp(38px, 5.2vh, 50px);
+}
+
+.k-reg-meter {
+    margin-top: clamp(6px, 1vh, 10px);
+}
+
+/* Requisitos siempre visibles, en una fila compacta */
+.k-reg-req-grid,
+.k-reg-req-grid.active {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    max-height: none;
+    opacity: 1;
+    overflow: visible;
+    margin-top: clamp(6px, 1vh, 10px);
+}
+
+.k-reg-req-item {
+    font-size: clamp(0.62rem, 1.3vh, 0.7rem);
+}
+
+.k-reg-legal {
+    margin-top: clamp(6px, 1.2vh, 16px);
+    padding-top: clamp(10px, 1.8vh, 20px);
+}
+
+.k-reg-legal-text {
+    font-size: clamp(0.68rem, 1.4vh, 0.76rem);
+    line-height: 1.5;
+}
+
+.k-reg-feedback {
+    min-height: 0;
+    margin-top: clamp(4px, 0.8vh, 8px);
+}
+
+.k-reg-error {
+    padding: clamp(7px, 1.2vh, 12px) 12px;
+    font-size: clamp(0.7rem, 1.4vh, 0.78rem);
+}
+
+.k-reg-submit {
+    height: clamp(46px, 6.2vh, 62px);
+    margin-top: clamp(6px, 1.2vh, 12px);
+    flex-shrink: 0;
+}
+
+.k-reg-btn-icon {
+    width: clamp(46px, 6.2vh, 62px);
+    height: clamp(46px, 6.2vh, 62px);
+}
+
+.k-reg-footer {
+    flex-shrink: 0;
+    margin-top: 0;
+    padding-top: clamp(10px, 2.2vh, 24px);
+    padding-bottom: clamp(10px, 2.2vh, 24px);
+}
+
+.k-reg-footer-btn {
+    font-size: clamp(1rem, 2.4vh, 1.6rem);
+}
+
+.k-reg-footer-arrow {
+    width: clamp(32px, 4.4vh, 40px);
+    height: clamp(32px, 4.4vh, 40px);
+}
+
+/* Pantallas bajas: se resigna la descripción */
+@media (max-height: 760px) {
+    .k-reg-desc {
+        display: none;
+    }
+}
+
+/* Pantallas muy bajas: el medidor alcanza, los requisitos se ocultan
+   hasta que el usuario enfoca la contraseña */
+@media (max-height: 600px) {
+    .k-reg-req-grid {
+        display: none;
+    }
+
+    .k-reg-req-grid.active {
+        display: flex;
+    }
+
+    .k-reg-legal-text {
+        font-size: 0.64rem;
+    }
+}
+
+/* La palabra de fondo entra completa en el espacio libre a la izquierda */
+.k-reg-backdrop-word {
+    font-size: clamp(3rem, calc((100vw - 620px) / 5.2), 16rem);
+    white-space: nowrap;
+}

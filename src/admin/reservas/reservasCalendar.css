@@ -1,0 +1,541 @@
+/* ==========================================================
+   reservasCalendar.css — Quinta de Argos (panel admin)
+   Prefijo de clases: rc-*
+   Usa los tokens --qa-* / --ar-* definidos en .ar-page
+   ========================================================== */
+
+.rc-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.rc-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.rc-month {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(1.6rem, 2.8vw, 2.3rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--qa-title);
+  width: 8.8em;
+  flex: none;
+  white-space: nowrap;
+  text-align: center;
+  margin: 0;
+}
+
+.rc-month::first-letter {
+  text-transform: uppercase;
+}
+
+/* Mismo tratamiento que los botones +/− de huéspedes */
+.rc-nav-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--qa-line);
+  background: transparent;
+  color: var(--qa-text);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.3s var(--qa-ease), border-color 0.3s var(--qa-ease), color 0.3s var(--qa-ease);
+}
+
+.rc-nav-btn:hover {
+  background-color: var(--qa-title);
+  border-color: var(--qa-title);
+  color: var(--qa-bg);
+}
+
+.rc-today {
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 0.92rem;
+  color: var(--qa-text);
+  background: transparent;
+  border: 1px solid var(--qa-line);
+  border-radius: 999px;
+  padding: 0.65rem 1.4rem;
+  cursor: pointer;
+  transition: border-color 0.4s var(--qa-ease);
+}
+
+.rc-today:hover {
+  border-color: var(--qa-title);
+}
+
+/* ---------- Leyenda ---------- */
+
+.rc-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.25rem;
+  list-style: none;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  font-weight: 300;
+  font-size: 0.88rem;
+  color: var(--qa-muted);
+}
+
+.rc-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.rc-legend-item::before {
+  content: "";
+  width: 14px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.rc-legend-item--web::before { background-color: var(--ar-web); }
+.rc-legend-item--airbnb::before { background-color: var(--ar-airbnb); }
+.rc-legend-item--booking::before { background-color: var(--ar-booking); }
+.rc-legend-item--owner::before { background-color: var(--ar-owner); }
+.rc-legend-item--direct::before { background-color: var(--ar-direct); }
+.rc-legend-item--closed::before {
+  border: 1px solid var(--qa-line);
+  background:
+    repeating-linear-gradient(135deg, var(--qa-hatch) 0 3px, transparent 3px 6px),
+    var(--qa-surface);
+}
+
+.rc-error {
+  margin: 0 0 1.25rem;
+  padding: 0.9rem 1.1rem;
+  border-left: 3px solid var(--qa-error);
+  background-color: var(--qa-error-bg);
+  color: var(--qa-error);
+  font-size: 0.95rem;
+}
+
+/* ---------- Grilla ---------- */
+
+.rc-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border-top: 1px solid var(--qa-line);
+  border-left: 1px solid var(--qa-line);
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: var(--qa-surface);
+  box-shadow: 0 40px 80px -48px rgba(28, 37, 25, 0.35);
+  transition: opacity 0.3s ease;
+}
+
+.ar-page.theme-dark .rc-grid {
+  box-shadow: 0 40px 80px -48px rgba(0, 0, 0, 0.7);
+}
+
+.rc-grid--loading {
+  opacity: 0.5;
+}
+
+.rc-weekday {
+  padding: 0.6rem 0.75rem;
+  font-weight: 500;
+  font-size: 0.82rem;
+  color: var(--qa-muted);
+  background-color: var(--qa-surface-alt);
+  border-right: 1px solid var(--qa-line);
+  border-bottom: 1px solid var(--qa-line);
+}
+
+.rc-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 96px;
+  padding: 0.55rem 0.7rem;
+  font-family: inherit;
+  text-align: left;
+  color: var(--qa-text);
+  background-color: var(--qa-surface);
+  border: none;
+  border-right: 1px solid var(--qa-line);
+  border-bottom: 1px solid var(--qa-line);
+}
+
+.rc-daynum {
+  font-weight: 500;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.rc-cell--today .rc-daynum {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background-color: var(--qa-title);
+  color: var(--qa-bg);
+}
+
+.rc-cell--outside {
+  background-color: var(--qa-bg);
+}
+
+.rc-cell--outside .rc-daynum,
+.rc-cell--outside .rc-meta {
+  opacity: 0.4;
+}
+
+.rc-cell--past:not(.rc-cell--booked) .rc-meta {
+  opacity: 0.4;
+}
+
+.rc-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+}
+
+.rc-price {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--qa-title);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Precios del día: Beds24 + web ---------- */
+
+.rc-prices {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0.45rem;
+}
+
+.rc-prices .rc-price {
+  line-height: 1;
+}
+
+/* Precio web: pastilla con el color de las reservas web.
+   --ar-on-source es el texto que ya se usa sobre ese color, así se lee
+   bien en el tema claro y en el oscuro. */
+.rc-price-web {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.18rem 0.5rem 0.16rem;
+  border-radius: 999px;
+  background-color: var(--ar-web);
+  color: var(--ar-on-source);
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 0.78rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.rc-price-web-label {
+  font-weight: 500;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+/* Leyenda de precios */
+.rc-legend-price {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.rc-legend-price .rc-price {
+  font-size: 0.92rem;
+  line-height: 1;
+}
+
+.rc-legend-price .rc-price-web {
+  font-size: 0.74rem;
+}
+
+.rc-minstay {
+  font-weight: 300;
+  font-size: 0.75rem;
+  color: var(--qa-muted);
+}
+
+/* Noches sin disponibilidad que no son reserva (días de preparación, cierres) */
+.rc-cell--closed {
+  background:
+    repeating-linear-gradient(135deg, var(--qa-hatch) 0 4px, transparent 4px 8px),
+    var(--qa-surface);
+}
+
+/* Noches reservadas: la estancia se lee como una franja continua de color */
+.rc-cell--booked {
+  color: var(--ar-on-source);
+  cursor: pointer;
+}
+
+.rc-cell--web { background-color: var(--ar-web); }
+.rc-cell--airbnb { background-color: var(--ar-airbnb); }
+.rc-cell--booking { background-color: var(--ar-booking); }
+.rc-cell--owner { background-color: var(--ar-owner); }
+.rc-cell--direct { background-color: var(--ar-direct); }
+
+.rc-cell--booked.rc-cell--outside {
+  opacity: 0.55;
+}
+
+.rc-cell--arrival {
+  box-shadow: inset 3px 0 0 rgba(248, 244, 234, 0.55);
+}
+
+.rc-cell--selected {
+  box-shadow: inset 0 0 0 3px var(--qa-bg);
+}
+
+.rc-cell--today.rc-cell--booked .rc-daynum {
+  background-color: var(--ar-on-source);
+  color: var(--qa-ink);
+}
+
+/* Nombre del huésped + aviso de cuna en el primer día de la franja */
+.rc-booking-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.rc-guest {
+  font-weight: 500;
+  font-size: 0.85rem;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+span.rc-guest {
+  text-transform: uppercase;
+}
+
+/* Etiqueta "Cuna": sobre la franja de color usa el texto de la fuente;
+   en la leyenda, los tokens normales. */
+.rc-crib {
+  display: inline-block;
+  font-weight: 500;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1;
+  padding: 0.18rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+}
+
+.rc-legend .rc-crib {
+  color: var(--qa-accent);
+}
+
+/* ---------- Detalle de la reserva seleccionada ---------- */
+
+.rc-detail {
+  margin-top: 1.5rem;
+  padding: 1.5rem 1.75rem;
+  background-color: var(--qa-surface);
+  border: 1px solid var(--qa-line);
+  border-left: 3px solid var(--ar-web);
+  border-radius: 6px;
+}
+
+.rc-detail--airbnb { border-left-color: var(--ar-airbnb); }
+.rc-detail--booking { border-left-color: var(--ar-booking); }
+.rc-detail--owner { border-left-color: var(--ar-owner); }
+.rc-detail--direct { border-left-color: var(--ar-direct); }
+
+.rc-detail-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.rc-detail-name {
+  text-transform: uppercase;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: 1.6rem;
+  line-height: 1.1;
+  color: var(--qa-title);
+  margin: 0;
+}
+
+.rc-detail-close {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--qa-line);
+  background: transparent;
+  color: var(--qa-text);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.3s var(--qa-ease);
+}
+
+.rc-detail-close:hover {
+  border-color: var(--qa-title);
+}
+
+.rc-detail-dates {
+  font-weight: 300;
+  font-size: 1rem;
+  color: var(--qa-muted);
+  margin: 0.4rem 0 1.1rem;
+}
+
+/* Grilla fija de 4 columnas: los campos vacíos (reservas que no son web)
+   conservan su lugar y el detalle no se descoloca. */
+.rc-detail-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem 2rem;
+  margin: 0;
+}
+
+.rc-detail-list div {
+  margin: 0;
+  min-width: 0;
+}
+
+.rc-detail-list dt {
+  font-size: 0.82rem;
+  color: var(--qa-muted);
+}
+
+.rc-detail-list dd {
+  margin: 0.15rem 0 0;
+  min-height: 1.45rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.rc-detail-sub {
+  display: block;
+  min-height: 1.2rem;
+  font-weight: 300;
+  font-size: 0.8rem;
+  color: var(--qa-muted);
+}
+
+.rc-detail-total {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: var(--qa-title);
+}
+
+.rc-detail-total .rc-detail-sub {
+  font-family: 'Jost', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 960px) {
+  .rc-detail-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+    .rc-nav {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .rc-month {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+  }
+
+  .rc-cell {
+    min-height: 60px;
+    padding: 0.35rem 0.3rem;
+  }
+
+  .rc-weekday {
+    padding: 0.45rem 0.2rem;
+    font-size: 0.72rem;
+    text-align: center;
+  }
+
+  .rc-daynum {
+    font-size: 0.8rem;
+  }
+
+  .rc-price {
+    font-size: 0.78rem;
+  }
+
+  .rc-prices {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+  }
+
+  .rc-price-web {
+    padding: 0.12rem 0.32rem;
+    font-size: 0.66rem;
+  }
+
+  .rc-price-web-label {
+    display: none;
+  }
+
+  .rc-legend-price .rc-price-web-label {
+    display: inline;
+  }
+
+  .rc-minstay {
+    display: none;
+  }
+
+  .rc-guest {
+    font-size: 0.68rem;
+    -webkit-line-clamp: 1;
+  }
+
+  /* En la celda no entra: la cuna se ve en el detalle */
+  .rc-cell .rc-crib {
+    display: none;
+  }
+
+  .rc-detail {
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .rc-detail-list {
+    grid-template-columns: 1fr;
+  }
+}

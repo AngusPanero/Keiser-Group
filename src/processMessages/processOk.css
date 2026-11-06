@@ -1,0 +1,189 @@
+/* ==========================================================
+   processOk.css — Quinta de Argos
+   ========================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Jost:wght@300;400;500&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+.process-container {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6vw;
+  font-family: 'Jost', 'Helvetica Neue', Arial, sans-serif;
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+.process-container.dark {
+  background-color: #201f1a;
+  color: #ece4d3;
+}
+
+.process-container.light {
+  background-color: #f2ede1;
+  color: #2c2a24;
+}
+
+.process-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 480px;
+}
+
+.process-eyebrow {
+  display: inline-block;
+  font-family: 'Helvetica Neue', 'Courier New', monospace;
+  font-weight: 500;
+  font-size: 0.72rem;
+  letter-spacing: 0.28em;
+  margin-bottom: 2rem;
+}
+
+.process-container.light .process-eyebrow {
+  color: #b8763e;
+}
+
+.process-container.dark .process-eyebrow {
+  color: #d3a06c;
+}
+
+.process-icon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 1.6rem;
+  margin-bottom: 1.75rem;
+  background-color: #6b7a55;
+  color: #f2ede1;
+  animation: qa-process-icon-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes qa-process-icon-in {
+  from { opacity: 0; transform: scale(0.6); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.process-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(1.5rem, 3.4vw, 2.1rem);
+  line-height: 1.25;
+  margin: 0 0 1.75rem;
+}
+
+.process-container.light .process-title {
+  color: #2a3626;
+}
+
+.process-container.dark .process-title {
+  color: #d3a06c;
+}
+
+.process-divider {
+  width: 60px;
+  height: 1.5px;
+  margin-bottom: 1.75rem;
+  background: linear-gradient(90deg, #2a3626 0%, #b8763e 100%);
+}
+
+.process-container.dark .process-divider {
+  background: linear-gradient(90deg, #d3a06c 0%, #b8763e 100%);
+}
+
+.process-text {
+  font-family: 'Helvetica Neue', 'Courier New', monospace;
+  font-weight: 500;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  opacity: 0.6;
+  margin: 0 0 2rem;
+}
+
+.process-progress-wrap {
+  width: 220px;
+  height: 2px;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 2.5rem;
+}
+
+.process-container.light .process-progress-wrap {
+  background-color: rgba(42, 54, 38, 0.12);
+}
+
+.process-container.dark .process-progress-wrap {
+  background-color: rgba(242, 237, 225, 0.12);
+}
+
+.process-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #6b7a55 0%, #b8763e 100%);
+  animation: qa-process-progress 5s linear forwards;
+}
+
+@keyframes qa-process-progress {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+.process-home-button {
+  font-family: 'Helvetica Neue', 'Courier New', monospace;
+  font-weight: 500;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: none;
+  padding: 0.9rem 2rem;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.process-container.light .process-home-button {
+  background-color: #2a3626;
+  color: #f2ede1;
+}
+
+.process-container.light .process-home-button:hover {
+  background-color: #b8763e;
+  transform: translateY(-2px);
+}
+
+.process-container.dark .process-home-button {
+  background-color: #b8763e;
+  color: #201f1a;
+}
+
+.process-container.dark .process-home-button:hover {
+  background-color: #d3a06c;
+  transform: translateY(-2px);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 480px) {
+  .process-progress-wrap {
+    width: 70%;
+  }
+
+  .process-home-button {
+    width: 100%;
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .process-progress-bar {
+    animation: none;
+    width: 100%;
+  }
+
+  .process-icon {
+    animation: none;
+  }
+}

@@ -1,0 +1,176 @@
+/* ==========================================================
+   error.css — Quinta de Argos
+   Acento en terracota (no arcilla) para diferenciarlo como
+   estado de error real, distinto de páginas neutras/de éxito.
+   ========================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Jost:wght@300;400;500&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+.error-container {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6vw;
+  font-family: 'Jost', 'Helvetica Neue', Arial, sans-serif;
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+.error-container.dark {
+  background-color: #201f1a;
+  color: #ece4d3;
+}
+
+.error-container.light {
+  background-color: #f2ede1;
+  color: #2c2a24;
+}
+
+.error-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 480px;
+}
+
+.error-eyebrow {
+  display: inline-block;
+  font-family: 'Helvetica Neue', 'Courier New', monospace;
+  font-weight: 500;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 1.75rem;
+}
+
+.error-container.light .error-eyebrow {
+  color: #9a4a34;
+}
+
+.error-container.dark .error-eyebrow {
+  color: #e0a08c;
+}
+
+.error-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(1.4rem, 3.2vw, 2rem);
+  line-height: 1.3;
+  margin: 0 0 1.75rem;
+}
+
+.error-container.light .error-title {
+  color: #2c2a24;
+}
+
+.error-container.dark .error-title {
+  color: #ece4d3;
+}
+
+.error-divider {
+  width: 60px;
+  height: 1.5px;
+  margin-bottom: 1.75rem;
+  background: linear-gradient(90deg, #9a4a34 0%, #b8763e 100%);
+}
+
+.error-container.dark .error-divider {
+  background: linear-gradient(90deg, #e0a08c 0%, #d3a06c 100%);
+}
+
+.error-text {
+  margin: 0 0 2rem;
+}
+
+.error-text.small {
+  font-family: 'Helvetica Neue', 'Courier New', monospace;
+  font-weight: 500;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  opacity: 0.6;
+}
+
+.error-progress-wrap {
+  width: 220px;
+  height: 2px;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 2.5rem;
+}
+
+.error-container.light .error-progress-wrap {
+  background-color: rgba(42, 54, 38, 0.12);
+}
+
+.error-container.dark .error-progress-wrap {
+  background-color: rgba(242, 237, 225, 0.12);
+}
+
+.error-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #9a4a34 0%, #b8763e 100%);
+  animation: qa-error-progress 5s linear forwards;
+}
+
+.error-container.dark .error-progress-bar {
+  background: linear-gradient(90deg, #e0a08c 0%, #d3a06c 100%);
+}
+
+@keyframes qa-error-progress {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+.error-home-button {
+  font-family: 'Helvetica Neue', 'Courier New', monospace;
+  font-weight: 500;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: none;
+  padding: 0.9rem 2rem;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.error-container.light .error-home-button {
+  background-color: #2a3626;
+  color: #f2ede1;
+}
+
+.error-container.light .error-home-button:hover {
+  background-color: #9a4a34;
+  transform: translateY(-2px);
+}
+
+.error-container.dark .error-home-button {
+  background-color: #9a4a34;
+  color: #f2ede1;
+}
+
+.error-container.dark .error-home-button:hover {
+  background-color: #b8583e;
+  transform: translateY(-2px);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 480px) {
+  .error-progress-wrap {
+    width: 70%;
+  }
+
+  .error-home-button {
+    width: 100%;
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .error-progress-bar {
+    animation: none;
+    width: 100%;
+  }
+}
