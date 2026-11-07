@@ -20,6 +20,12 @@ import service2 from "/fotos/service2.jpg"
 import service3 from "/fotos/service3.jpg"
 import service4 from "/fotos/service4.jpg"
 
+import compact12 from "/fotos/compact-12.jpg"
+import ha16 from "/fotos/HA16.jpg"
+import jlg from "/fotos/jlg.jpg"
+import OPTINUM8 from "/fotos/OPTINUM-8.jpg"
+import z60 from "/fotos/z60.jpg"
+import ht23 from "/fotos/ht23.jpg"
 /* ============================================================
    CONFIG — reemplazá videos y fotos por los definitivos
    ============================================================ */
@@ -81,7 +87,7 @@ const FLEET: Machine[] = [
     load: 350,
     power: "Eléctrica",
     range: "baja",
-    img: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=1200&q=80",
+    img: OPTINUM8,
   },
   {
     id: "m2",
@@ -92,7 +98,7 @@ const FLEET: Machine[] = [
     load: 450,
     power: "Eléctrica",
     range: "baja",
-    img: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80",
+    img: compact12
   },
   {
     id: "m3",
@@ -103,7 +109,7 @@ const FLEET: Machine[] = [
     load: 230,
     power: "Diésel 4x4",
     range: "media",
-    img: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=1200&q=80",
+    img: ha16
   },
   {
     id: "m4",
@@ -114,7 +120,7 @@ const FLEET: Machine[] = [
     load: 227,
     power: "Diésel 4x4",
     range: "media",
-    img: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1200&q=80",
+    img: z60
   },
   {
     id: "m5",
@@ -125,7 +131,7 @@ const FLEET: Machine[] = [
     load: 350,
     power: "Diésel 4x4",
     range: "alta",
-    img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1200&q=80",
+    img: ht23
   },
   {
     id: "m6",
@@ -136,7 +142,7 @@ const FLEET: Machine[] = [
     load: 230,
     power: "Diésel 4x4",
     range: "alta",
-    img: "https://images.unsplash.com/photo-1517089596392-fb9a9033e05b?auto=format&fit=crop&w=1200&q=80",
+    img: jlg,
   },
 ];
 
@@ -538,7 +544,7 @@ const Home = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, ease: EASE_OUT, delay: 1.35 }}
             >
-              <a href="#flota" className="kh-btn kh-btn-primary">
+              <a href="/catalog" className="kh-btn kh-btn-primary">
                 <span>Ver flota</span>
                 <span className="kh-btn-arrow">→</span>
               </a>

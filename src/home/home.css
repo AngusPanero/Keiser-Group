@@ -81,7 +81,7 @@
 /* ============================================================
    CURSOR
    ============================================================ */
-@media (pointer: fine) {
+/* @media (pointer: fine) {
   .kh-root.has-cursor,
   .kh-root.has-cursor a,
   .kh-root.has-cursor button {
@@ -152,7 +152,7 @@
 .kh-cursor.is-hover .kh-cursor-v {
   transform: rotate(45deg) scale(0.6);
   background: var(--kh-black);
-}
+} */
 
 /* ============================================================
    ALTÍMETRO

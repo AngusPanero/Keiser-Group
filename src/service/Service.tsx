@@ -211,8 +211,8 @@ const Service = () => {
           </motion.span>
 
           <h1 className="sv-hero-title">
-            <MaskLine now i={0}>Ninguna máquina</MaskLine>
-            <MaskLine now i={1} className="sv-accent">se queda parada.</MaskLine>
+            <MaskLine now i={0}>Expertos en</MaskLine>
+            <MaskLine now i={1} className="sv-accent">mantenimiento de equipos</MaskLine>
           </h1>
 
           <motion.p
